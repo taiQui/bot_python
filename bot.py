@@ -176,7 +176,9 @@ async def on_message(message):
             if P4 == None:
                 print("creation")
                 if cmd.size()==0:
-                    await message.channel.send("Err | !p4 [name adv]")
+                    P4 = puissance4.Puissance4()
+                    await P4.init(message.author.id,bot.user.id,message.channel.id,message,1)
+                    await P4.print(message)
                     return
                 id = getID(cmd.args[0])
                 if id == None:
@@ -187,7 +189,10 @@ async def on_message(message):
                 await P4.print(message)
             else:
                 print("already created")
-                await P4.start(cmd.args[0],message.author.id,message)
+                if P4.mod == 0:
+                    await P4.start(cmd.args[0],message.author.id,message)
+                else:
+                    await P4.start_bot(cmd.args[0],message.author.id,message)
             if P4.P4_inGame == False:
                 P4 = None
 

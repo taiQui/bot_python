@@ -1,6 +1,7 @@
 import numpy as np
 import discord
 from threading import RLock
+import copy,random
 verrou = RLock()
 class Puissance4:
     def __init__(self):
@@ -12,6 +13,7 @@ class Puissance4:
         self.P4_GamePlayer2 = 0
         self.P4_gameMessage = ""
         self.P4_gameServer = ""
+        self.mod = 0
         # ligne , colonne
         self.GrilleJeux = []
         for i in range(6):
@@ -41,6 +43,7 @@ class Puissance4:
         self.P4_gameMessage = message
         self.P4_tourjoueur1 = True
         self.GrilleJeux = []
+        self.mod = gamemod
         for i in range(6):
             self.GrilleJeux.append([])
             for j in range(7):
@@ -56,9 +59,6 @@ class Puissance4:
         if not self.P4_inGame:
             return
         with verrou:
-            print("game")
-            print("text : "+msg+";")
-            print(type(msg))
             if id == self.P4_GamePlayer1 and self.P4_tourjoueur1:
                 if not msg.isdigit():
                     return
@@ -84,19 +84,108 @@ class Puissance4:
                     return
                 self.P4_tourjoueur1 = True
             else:
-                print("3 - ")
                 return
-            print("You play "+msg)
             await self.print(None)
             await message.delete()
             return
+
+    async def start_bot(self,msg,id,message):
+        if not self.P4_inGame:
+            return
+        with verrou:
+            if id == self.P4_GamePlayer1 and self.P4_tourjoueur1:
+                if not msg.isdigit():
+                    return
+                if int(msg) < 1 or int(msg) > 7:
+                    return
+                self.play(msg,self.itemP2)
+                if self.testwin(self.GrilleJeux) != -1:
+                    await self.print(None)
+                    await message.channel.send("<@"+str(self.P4_GamePlayer1)+"> WIN this match !")
+                    self.P4_inGame = False
+                    return
+                self.P4_tourjoueur1 = False
+                # BOT PLAYS NOW
+                score_tours = [0,0,0,0,0,0,0]
+                for i in range(7):
+                    aux = copy.copy(self.GrilleJeux)
+                    if self.findIndex(i,aux) == -1:
+                        score_tours[i] -= 5000
+                    else:
+                        #test if bot win after this move or map is full
+                        aux[self.findIndex(i,aux)][i] = self.itemP1
+                        tw = self.testwin(aux)
+                        if type(True) != type(tw):
+                            if  tw == 1:
+                                score_tours[i] += 2000
+                        else:
+                            if tw == True:
+                                score_tours[i] += 5000
+                        aux = copy.copy(self.GrilleJeux)
+                        # test if user win if plays here
+                        aux[self.findIndex(i,aux)][i] = self.itemP2
+                        tw = self.testwin(aux)
+                        if tw == 2:
+                            score_tours += 1000
+                        aux = copy.copy(self.GrilleJeux)
+                        #test if you get more aligned point after this move
+                        before = self.test_align_plus(aux,2)
+                        aux[self.findIndex(i,aux)][i] = self.itemP1
+                        after = self.test_align_plus(aux,2)
+                        if after > before and after == 2:
+                            score_tours[i] += 200
+                        elif after > before and after == 3:
+                            score_tours[i] += 300
+                        aux = copy.copy(self.GrilleJeux)
+                        #Test if user get more aligned point after this move
+                        before = self.test_align_plus(aux,1)
+                        aux[self.findIndex(i,aux)][i] = self.itemP2
+                        after = self.test_align_plus(aux,1)
+                        if after > before and after == 2:
+                            score_tours[i] += 100
+                        elif after > before and after == 3:
+                            score_tours[i] += 200
+                        aux = copy.copy(self.GrilleJeux)
+                        #test if bot points next to this move
+                        aux[self.findIndex(i,aux)][i] = self.itemP1
+                        if self.test_align_bot(i,aux) == 1:
+                            score_tours[i] += 100
+                        aux = copy.copy(self.GrilleJeux)
+                        #test if bot plays here, if user win if plays same case
+                        aux[self.findIndex(i,aux)][i] = self.itemP1
+                        if self.findIndex(i,aux) != -1:
+                            aux[self.findIndex(i,aux)][i] = self.itemP2
+                            if self.testwin(aux) == 2:
+                                score_tours[i] -= 1000
+                max = 0
+                score_max = 0
+                for i in range(7):
+                    if score_tours[i] >= score_max:
+                        if score_tours[i] > score_max:
+                            score_max = score_tours[i]
+                            max = i
+                        else:
+                            if random.randrange(0,2,1):
+                                score_max = score_tours[i]
+                                max = i
+                self.GrilleJeux[self.findIndex(max,self.GrilleJeux)][max] = self.itemP1
+                self.P4_tourjoueur1 = True
+                tw =  self.testwin(self.GrilleJeux)
+                if tw == 2:
+                    await message.channel.send("BOT win this match noob !")
+
+            else:
+                return
+            await self.print(None)
+            await message.delete()
+            return
+
+
+
     def play(self,index,item):
         if index == "1":
-            print("test 1")
             tmp = self.findIndex(int(index)-1,self.GrilleJeux)
-            print("tmp : "+str(tmp))
             if  tmp != -1:
-                print("test 2")
                 self.GrilleJeux[tmp][1-1] = item
         elif index == "2":
             if self.findIndex(int(index)-1,self.GrilleJeux) != -1:
@@ -117,7 +206,7 @@ class Puissance4:
             if self.findIndex(int(index)-1,self.GrilleJeux) != -1:
                 self.GrilleJeux[self.findIndex(int(index)-1,self.GrilleJeux)][int(index)-1] = item
         else:
-            print("yolo")
+            pass
     async def print(self,message):
         tour = ""
         if self.P4_tourjoueur1:
@@ -150,11 +239,121 @@ class Puissance4:
                 i-=1
             else:
                 continuer = False
-        print("index : "+str(i)+"\ncontinuer : "+str(continuer))
         if continuer == True:
             return -1
         else:
             return i
+    def test_align_bot(self,index,grid):
+        i = 5
+        continuer = True
+        while i >= 0 and continuer:
+            if grid[i][index] == self.itemP1:
+                continuer = False
+            else:
+                i -= 1
+        if index -1 > 0 and i -1 >= 0:
+            if grid[i-1][index-1] == self.itemP1:
+                return 1
+        if index -1 >= 0:
+            if grid[i][index-1] == self.itemP1:
+                return 1
+        if index -1 >=0 and  i+1 <= 5:
+            if grid[i+1][index-1] == self.itemP1:
+                return 1
+        if i+1 <= 5:
+            if grid[i+1][index] == self.itemP1:
+                return 1
+        if i+1 <= 5 and index +1 <= 6:
+            if grid[i+1][index+1] == self.itemP1:
+                return 1
+        if index+1 <= 6:
+            if grid[i][index+1] == self.itemP1:
+                return 1
+        if i-1 >= 0 and index+1 <= 6:
+            if grid[i-1][index+1] == self.itemP1:
+                return 1
+        return 0
+
+    def test_align_plus(self,grid,player):
+        max = 0
+        aux_max = 0
+        enemie = ""
+        ally = ""
+        if player == 1:
+            enemie = self.itemP1
+            ally = self.itemP2
+        else:
+            enemie = self.itemP2
+            ally = self.itemP1
+        # test horizontale
+        for i in range(6):
+            for j in range(7):
+                if grid[i][j] == enemie:
+                    aux_max = 0
+                elif grid[i][j] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+        if aux_max > max :
+            max = aux_max
+        aux_max = 0
+        #test verticale
+        for i in range(7):
+            for j in range(6):
+                if grid[j][i] == enemie:
+                    aux_max = 0
+                elif grid[j][i] == ally:
+                    aux_max += 1
+                else :
+                    aux_max = 0
+        if aux_max > max :
+            max = aux_max
+        aux_max = 0
+        #test diag montante
+        for i in range(3,6):
+            for j in range(4):
+                if grid[i][j] == ally:
+                     aux_max +=1
+                else:
+                    aux_max = 0
+                if grid[i-1][j+1] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+                if grid[i-2][j+2] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+                if grid[i-3][j+3] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+        if aux_max > max :
+            max = aux_max
+        aux_max = 0
+        #test diag desc
+        for i in range(3):
+            for j in range(4):
+                if grid[i][j] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+                if grid[i+1][j+1] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+                if grid[i+2][j+2] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+                if grid[i+3][j+3] == ally:
+                    aux_max += 1
+                else:
+                    aux_max = 0
+        if aux_max > max :
+            max = aux_max
+        return max
+
     def testdiagmon(self,grid):
         for i in range(3,6):
             for j in range(4):
@@ -289,7 +488,5 @@ class Puissance4:
 
         return -1
 
-def check(self,msg):
-    return msg.channel == smsg.P4_gameServer and self.controlPlaying(msg.id)
 if __name__ == "__main__":
-    print("a")
+    pass

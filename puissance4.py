@@ -53,6 +53,8 @@ class Puissance4:
         # else:
         #     self.start_against_bot()
     async def start(self,msg,id,message):
+        if not self.P4_inGame:
+            return
         with verrou:
             print("game")
             print("text : "+msg+";")
@@ -65,7 +67,7 @@ class Puissance4:
                 self.play(msg,self.itemP2)
                 if self.testwin(self.GrilleJeux) != -1:
                     await self.print(None)
-                    await message.channel.send("WIN J1")
+                    await message.channel.send("<@"+str(self.P4_GamePlayer1)+"> WIN this match !")
                     self.P4_inGame = False
                     return
                 self.P4_tourjoueur1 = False
@@ -78,7 +80,7 @@ class Puissance4:
                 if self.testwin(self.GrilleJeux) != -1:
                     await self.print(None)
                     self.P4_inGame = False
-                    await message.channel.send("WIN J2")
+                    await message.channel.send("<@"+str(self.P4_GamePlayer2)+"> WIN this match !")
                     return
                 self.P4_tourjoueur1 = True
             else:

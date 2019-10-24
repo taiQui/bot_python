@@ -59,19 +59,25 @@ class Puissance4:
         if not self.P4_inGame:
             return
         with verrou:
-            if id == self.P4_GamePlayer1 and self.P4_tourjoueur1:
+            if id == self.P4_GamePlayer1 and self.P4_tourjoueur1 and message.channel.id == self.P4_gameServer:
                 if not msg.isdigit():
                     return
                 if int(msg) < 1 or int(msg) > 7:
                     return
                 self.play(msg,self.itemP2)
-                if self.testwin(self.GrilleJeux) != -1:
+                tw = elf.testwin(self.GrilleJeux)
+                if tw != -1 and tw != 3:
                     await self.print(None)
                     await message.channel.send("<@"+str(self.P4_GamePlayer1)+"> WIN this match !")
                     self.P4_inGame = False
                     return
+                elif tw == 3:
+                    await self.print(None)
+                    await message.channel.send("DRAW!")
+                    self.P4_inGame = False
+                    return
                 self.P4_tourjoueur1 = False
-            elif id == self.P4_GamePlayer2 and not self.P4_tourjoueur1:
+            elif id == self.P4_GamePlayer2 and not self.P4_tourjoueur1 and message.channel.id == self.P4_gameServer:
                 if not msg.isdigit():
                     return
                 if int(msg) < 1 or int(msg) > 7:
@@ -93,41 +99,45 @@ class Puissance4:
         if not self.P4_inGame:
             return
         with verrou:
-            if id == self.P4_GamePlayer1 and self.P4_tourjoueur1:
+            if id == self.P4_GamePlayer1 and self.P4_tourjoueur1 and message.channel.id == self.P4_gameServer:
                 if not msg.isdigit():
                     return
                 if int(msg) < 1 or int(msg) > 7:
                     return
                 self.play(msg,self.itemP2)
-                if self.testwin(self.GrilleJeux) != -1:
+                tw = self.testwin(self.GrilleJeux)
+                if tw != -1 and tw != 3:
                     await self.print(None)
                     await message.channel.send("<@"+str(self.P4_GamePlayer1)+"> WIN this match !")
+                    self.P4_inGame = False
+                    return
+                elif tw == 3:
+                    await self.print(None)
+                    await message.channel.send("DRAW!")
                     self.P4_inGame = False
                     return
                 self.P4_tourjoueur1 = False
                 # BOT PLAYS NOW
                 score_tours = [0,0,0,0,0,0,0]
                 for i in range(7):
-                    aux = copy.copy(self.GrilleJeux)
+                    aux = self.copy(self.GrilleJeux)
                     if self.findIndex(i,aux) == -1:
                         score_tours[i] -= 5000
                     else:
                         #test if bot win after this move or map is full
                         aux[self.findIndex(i,aux)][i] = self.itemP1
                         tw = self.testwin(aux)
-                        if type(True) != type(tw):
-                            if  tw == 1:
-                                score_tours[i] += 2000
-                        else:
-                            if tw == True:
-                                score_tours[i] += 5000
-                        aux = copy.copy(self.GrilleJeux)
+                        if  tw == 2:
+                            score_tours[i] += 2000
+                        elif tw == 3:
+                            score_tours[i] += 5000
+                        aux = self.copy(self.GrilleJeux)
                         # test if user win if plays here
                         aux[self.findIndex(i,aux)][i] = self.itemP2
                         tw = self.testwin(aux)
-                        if tw == 2:
-                            score_tours += 1000
-                        aux = copy.copy(self.GrilleJeux)
+                        if tw == 1:
+                            score_tours[i] += 1000
+                        aux = self.copy(self.GrilleJeux)
                         #test if you get more aligned point after this move
                         before = self.test_align_plus(aux,2)
                         aux[self.findIndex(i,aux)][i] = self.itemP1
@@ -136,7 +146,7 @@ class Puissance4:
                             score_tours[i] += 200
                         elif after > before and after == 3:
                             score_tours[i] += 300
-                        aux = copy.copy(self.GrilleJeux)
+                        aux = self.copy(self.GrilleJeux)
                         #Test if user get more aligned point after this move
                         before = self.test_align_plus(aux,1)
                         aux[self.findIndex(i,aux)][i] = self.itemP2
@@ -145,12 +155,12 @@ class Puissance4:
                             score_tours[i] += 100
                         elif after > before and after == 3:
                             score_tours[i] += 200
-                        aux = copy.copy(self.GrilleJeux)
+                        aux = self.copy(self.GrilleJeux)
                         #test if bot points next to this move
                         aux[self.findIndex(i,aux)][i] = self.itemP1
                         if self.test_align_bot(i,aux) == 1:
                             score_tours[i] += 100
-                        aux = copy.copy(self.GrilleJeux)
+                        aux = self.copy(self.GrilleJeux)
                         #test if bot plays here, if user win if plays same case
                         aux[self.findIndex(i,aux)][i] = self.itemP1
                         if self.findIndex(i,aux) != -1:
@@ -231,6 +241,13 @@ class Puissance4:
         "   1" + "      2" + "     3" + "     4" + "     5" + "    6" + "     7" + "\n" + tour);
             self.P4_gameMessage = message.channel.last_message
             self.P4_inGame = True
+    def copy(self,grid):
+        aux = []
+        for i in range(6):
+            aux.append([])
+            for j in range(7):
+                aux[i].append(self.GrilleJeux[i][j])
+        return aux
     def findIndex(self,index,grid):
         i = 5
         continuer = True
@@ -484,7 +501,7 @@ class Puissance4:
             return aux
         aux = self.Full(grid)
         if aux != False:
-            return 1
+            return 3
 
         return -1
 

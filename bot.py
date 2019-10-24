@@ -195,7 +195,8 @@ async def on_message(message):
                     await P4.start_bot(cmd.args[0],message.author.id,message)
             if P4.P4_inGame == False:
                 P4 = None
-
+        elif cmd.cmd == "pd":
+            
         else:
             await message.channel.send('Command not found !')
     else:

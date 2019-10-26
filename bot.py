@@ -4,8 +4,9 @@ from datetime import date
 from edt import Time_Schedule
 from constant import *
 from threading import Thread
-import puissance4
+import puissance4,pendu
 import random,asyncio,requests,re,json
+from cleverbot import async_ as cleverbot
 
 """
 Author : taiQui
@@ -23,7 +24,7 @@ edt2 = Time_Schedule(ID['M2-FI']['username'],ID['M2-FI']['password'],2)
 # edt3 = Time_Schedule(USERNAME,PASSWORD,3)
 edt4 = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],4)
 P4 = None
-
+PD = None
 #####################
 @bot.event
 async def on_ready():
@@ -40,7 +41,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    global P4
+    global P4,PD
     if message.content == "exit":
         exit()
     # If message come from bot
@@ -188,7 +189,8 @@ async def on_message(message):
                 await P4.init(message.author.id,id,message.channel.id,message,0)
                 await P4.print(message)
             else:
-                print("already created")
+                if cmd.size() == 0:
+                    return
                 if P4.mod == 0:
                     await P4.start(cmd.args[0],message.author.id,message)
                 else:
@@ -196,7 +198,63 @@ async def on_message(message):
             if P4.P4_inGame == False:
                 P4 = None
         elif cmd.cmd == "pd":
-            
+            if PD == None:
+                PD = pendu.Pendu(message)
+                await PD.init(message)
+            else:
+                if cmd.size() == 0:
+                    return
+                await PD.start(message,cmd.args[0],message.author.id)
+            if PD.Pendu_inGame == False:
+                PD = None
+        elif cmd.cmd == "insult":
+            if cmd.size() == 0:
+                embed = discord.Embed(
+                                        title="Sweet Word",
+                                        colour=0x000000
+                                    )
+                r = requests.get("https://evilinsult.com/generate_insult.php?type=plain&lang=en")
+                embed.add_field(name="From : "+message.author.name,value=r.text)
+                await message.channel.send(embed=embed)
+            else:
+                id = getID(cmd.args[0])
+                if id == None:
+                    await message.channel.send("Err | No one with this name")
+                    return
+                r = requests.get("https://evilinsult.com/generate_insult.php?type=plain&lang=en")
+                embed = discord.Embed(
+                                        title="Sweet Word",
+                                        colour=0x000000
+                                    )
+                r = requests.get("https://evilinsult.com/generate_insult.php?type=plain&lang=en")
+                embed.add_field(name="From : Someone who think about you",value=r.text)
+                user = await bot.fetch_user(id)
+                await user.send(embed=embed)
+                return
+        elif cmd.cmd == "help":
+            if cmd.size()== 0:
+                embed = discord.Embed(
+                                            colour=0x01FF00
+                                        )
+                embed.add_field(name="HELP",value="-----",inline=False)
+                embed.add_field(name="Game",value="!help game",inline=True)
+                embed.add_field(name="dice",value="!dice => run a dice [1-10]",inline=True)
+                embed.add_field(name="delmsg",value="!delmsg [number] => dell $number message",inline=True)
+                embed.add_field(name="start",value="!start hh mm => Send message when time given is half ended",inline=True)
+                embed.add_field(name="rm",value="!rm [RootMe Name] => give root me point",inline=True)
+                embed.add_field(name="rmstat",value="!rmstat [RootMe Name] => Give rootme stats",inline=True)
+                embed.add_field(name="edt",value="!edt [class] => give the edt for given class\n        1 : Master 1 FI\n        2 : Master 2 FI\n        3 : Master 1 FA\n        4 : Master 2 FA",inline=False)
+                embed.add_field(name="edtnext",value="!edtnext [class] same as !edt but for next week",inline=True)
+                embed.add_field(name="timer",value="!timer hh:mm:ss => run timer which gonna end in given time",inline=True)
+                embed.add_field(name="insult",value="!insult [Name]=> Send sweet words in current channel, if name is given send DM instead")
+                embed.add_field(name="help",value="print this shit")
+                await message.channel.send(embed=embed)
+            else:
+                if cmd.args[0] == "game":
+                    embed = discord.Embed(colour=0x01FF00)
+                    embed.add_field(name="P4",value="Puissance4 game, run game with !p4 [[namePlayer2] if empty play against bot]\nThen play with !p4 number [1-7]")
+                    embed.add_field(name="PD",value="Pendu game, run !pd to begin game then !pd [letter to play] !",inline=True)
+                    await message.channel.send(embed=embed)
         else:
             await message.channel.send('Command not found !')
     else:
@@ -244,11 +302,11 @@ def getID(name):
 async def update_schedule():
     while True:
         # today = date.today()
-        # today = today.strftime("%d/%m/%Y")
-        # bot.get_channel("625675545061097472").fetch_message("625696053794177034").edit("updated - "+str(today))
-        # bot.get_channel("625675545061097472").fetch_message("625696059179401246").edit(embed=await edit1.Parsing())
-        # bot.get_channel("625675545061097472").fetch_message("631869467902738432").edit(embed=await edit3.Parsing())
-        # bot.get_channel("625675545061097472").fetch_message("631869982178934784").edit(embed=await edit4.Parsing())
+        # today = today.strftime("%d/%m/%Y, %H:%M:%S")
+        # await bot.get_channel("625675545061097472").fetch_message("625696053794177034").edit("updated - "+str(today))
+        # await bot.get_channel("625675545061097472").fetch_message("625696059179401246").edit(embed=await edit1.Parsing())
+        # await bot.get_channel("625675545061097472").fetch_message("631869467902738432").edit(embed=await edit3.Parsing())
+        # await bot.get_channel("625675545061097472").fetch_message("631869982178934784").edit(embed=await edit4.Parsing())
         await asyncio.sleep(edt_reload)
 
 

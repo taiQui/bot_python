@@ -1,5 +1,2 @@
-CLEVER BOT python
-PENDU
 VOTE QUESTION:RESPONSE
-PUISSANCE 4
 ban/unban commande

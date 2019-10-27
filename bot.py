@@ -5,7 +5,7 @@ from edt import Time_Schedule
 from constant import *
 from threading import Thread
 import puissance4,pendu
-import random,asyncio,requests,re,json
+import random,asyncio,requests,re,json,time
 from cleverbot import async_ as cleverbot
 
 """
@@ -23,6 +23,7 @@ edt1 = Time_Schedule(ID['M1-FI']['username'],ID['M1-FI']['password'],1)
 edt2 = Time_Schedule(ID['M2-FI']['username'],ID['M2-FI']['password'],2)
 # edt3 = Time_Schedule(USERNAME,PASSWORD,3)
 edt4 = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],4)
+
 P4 = None
 PD = None
 #####################
@@ -231,6 +232,30 @@ async def on_message(message):
                 user = await bot.fetch_user(id)
                 await user.send(embed=embed)
                 return
+        elif cmd.cmd == "ctftime":
+            number = 5
+            if cmd.size() > 0 :
+                if not cmd.args[0].isdigit():
+                    await message.channel.send("Err | Not a Number")
+                    return
+                if int(cmd.args[0]) > 15:
+                    await message.channel.send("Err | !ctftime [nb <= 15]")
+                    return
+                number = int(cmd.args[0])
+            url = "https://ctftime.org/api/v1/events/?limit="+str(number)+"&start="+str(int(time.time()))+"&finish="+str(int(time.time()+100000000))
+            header = requests.utils.default_headers()
+            header.update({"User-Agent":"ctf_time_discord_bot"})
+            r = requests.get(url,headers=header)
+            json_format = json.loads(r.text)
+            count = 0
+            for i in json_format:
+                embed = discord.Embed( title=i['title'], colour = 0x000000 if count%2 == 0 else 0xFFFFFF )
+                embed.add_field(name=i['url'],value=i['description'])
+                embed.add_field(name=i['format'],value="online : "+str(i['onsite']))
+                embed.add_field(name="participants : "+str(i['participants']),value="Durations : "+str(i['duration']['days'])+"d:"+str(i['duration']['hours'])+"h")
+                embed.add_field(name="start : "+i['start'],value="finish : "+i['finish'])
+                count += 1
+                await message.channel.send(embed=embed)
         elif cmd.cmd == "help":
             if cmd.size()== 0:
                 embed = discord.Embed(
@@ -247,6 +272,7 @@ async def on_message(message):
                 embed.add_field(name="edtnext",value="!edtnext [class] same as !edt but for next week",inline=True)
                 embed.add_field(name="timer",value="!timer hh:mm:ss => run timer which gonna end in given time",inline=True)
                 embed.add_field(name="insult",value="!insult [Name]=> Send sweet words in current channel, if name is given send DM instead")
+                embed.add_field(name="ctftime",value="!ctftime [number default 5] => print [number] upcomming ctf")
                 embed.add_field(name="help",value="print this shit")
                 await message.channel.send(embed=embed)
             else:
@@ -303,10 +329,20 @@ async def update_schedule():
     while True:
         # today = date.today()
         # today = today.strftime("%d/%m/%Y, %H:%M:%S")
-        # await bot.get_channel("625675545061097472").fetch_message("625696053794177034").edit("updated - "+str(today))
-        # await bot.get_channel("625675545061097472").fetch_message("625696059179401246").edit(embed=await edit1.Parsing())
-        # await bot.get_channel("625675545061097472").fetch_message("631869467902738432").edit(embed=await edit3.Parsing())
-        # await bot.get_channel("625675545061097472").fetch_message("631869982178934784").edit(embed=await edit4.Parsing())
+        # await bot.get_channel(625675545061097472).fetch_message(625696053794177034).edit("updated - "+str(today))
+        # await bot.get_channel(625675545061097472).fetch_message(625696059179401246).edit(embed=await edit1.Parsing())
+        # await bot.get_channel(625675545061097472).fetch_message(631869467902738432).edit(embed=await edit3.Parsing())
+        # await bot.get_channel(625675545061097472).fetch_message(631869982178934784).edit(embed=await edit4.Parsing())
+        # if edt1.bchange == True:
+        #     await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
+        #     edt1.bchange = False
+        # if edt2.bchange == True:
+        #     await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
+        #     edt2.bchange = False
+        # if edt4.bchange == True:
+        #     await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
+        #     edt4.bchange = False
+
         await asyncio.sleep(edt_reload)
 
 

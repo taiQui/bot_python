@@ -23,7 +23,8 @@ class Time_Schedule(Thread):
             self.color = 0x01F2FF
         self.next = next
         self.daemon = True
-
+        self.change = ""
+        self.bchange = False
     def run(self):
         while True:
             self.connection()
@@ -46,7 +47,13 @@ class Time_Schedule(Thread):
                  }
         r = self.session.post(url,data=payload,allow_redirects=True)
         if self.next == 0:
+            self.change = "a"
             self.dataToParsing = r.text
+            Rchange = re.findall(r'<span style=\'color:black; font-size:7pt; float: right;\'>Dernière mise à jour : ([0-9/ :]*)</span>',r.text)
+            if self.change != "" and len(Rchange)>0:
+                if self.change != Rchange[0]:
+                    self.bchange = True
+                    self.change = Rchange[0]
         else :
             payload = {
                         'org.apache.myfaces.trinidad.faces.FORM':'form_week',
@@ -56,6 +63,7 @@ class Time_Schedule(Thread):
                       }
             r = self.session.post("https://vtmob.uphf.fr/esup-vtclient-up4/stylesheets/desktop/welcome.xhtml",data=payload,allow_redirects=True)
             self.dataToParsing = r.text
+
 
     async def Parsing(self):
         # print(self.dataToParsing)

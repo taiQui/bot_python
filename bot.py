@@ -1,5 +1,5 @@
 import discord
-from classe import Commande
+from classe import Commande,Vote
 from datetime import date
 from edt import Time_Schedule
 from constant import *
@@ -26,6 +26,7 @@ edt4 = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],4)
 
 P4 = None
 PD = None
+vote = None
 #####################
 @bot.event
 async def on_ready():
@@ -42,7 +43,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    global P4,PD
+    global P4,PD,vote
     if message.content == "exit":
         exit()
     # If message come from bot
@@ -256,6 +257,54 @@ async def on_message(message):
                 embed.add_field(name="start : "+i['start'],value="finish : "+i['finish'])
                 count += 1
                 await message.channel.send(embed=embed)
+        elif cmd.cmd == "vote":
+            if vote == None:
+                msg = await message.channel.send("<@"+str(message.author.id)+"> Start a vote !")
+                time = 1
+                if cmd.size() != 0:
+                    if not cmd.args[0].isdigit():
+                        await message.channel.send("Err | Not a Number")
+                        return
+                    time = int(cmd.args[0])
+                vote = Vote(msg.id,msg,time)
+            else:
+                await message.channel.send("Err | vote already instantiated")
+                return
+        elif cmd.cmd == "vote_q":
+            if vote == None:
+                await message.channel.send("Err | !vote before ")
+                return
+            if cmd.size() == 0:
+                await message.channel.send("Err | !vote_q Question")
+                return
+            vote.setQ(cmd.args)
+            await vote.prepare()
+            await message.delete()
+        elif cmd.cmd == "vote_r":
+            if vote == None:
+                await message.channel.send("Err | !vote before ")
+                return
+            if cmd.size() == 0:
+                await message.channel.send("Err | !vote_r Response")
+                return
+            if len(vote.response) > 10:
+                await message.channel.send("Err | can't add more response : 10 max")
+                return
+            vote.setR(cmd.args)
+            await vote.prepare()
+            await message.delete()
+        elif cmd.cmd == "vote_s":
+            if vote.question == "" and len(vote.response) < 1:
+                await message.channel.send("Err | Need 1 Question and 1 response")
+                return
+            a = await vote.prepare()
+            vote.start()
+            vote.join()
+            await vote.end()
+            vote = None
+        elif cmd.cmd == "vote_c":
+            vote = None
+            await message.channel.send("Vote cleared !")
         elif cmd.cmd == "help":
             if cmd.size()== 0:
                 embed = discord.Embed(
@@ -273,6 +322,10 @@ async def on_message(message):
                 embed.add_field(name="timer",value="!timer hh:mm:ss => run timer which gonna end in given time",inline=True)
                 embed.add_field(name="insult",value="!insult [Name]=> Send sweet words in current channel, if name is given send DM instead")
                 embed.add_field(name="ctftime",value="!ctftime [number default 5] => print [number] upcomming ctf")
+                embed.add_field(name="vote",value="!vote [time in minutes] => Create vote instance running for [time default 1]minutes")
+                embed.add_field(name="vote_q",value="!vote_q question => Add question to the vote instance")
+                embed.add_field(name="vote_r",value="!vote_r response => Add response to the vote instance")
+                embed.add_field(name="vote_s",value="!vote_s => start the vote now")
                 embed.add_field(name="help",value="print this shit")
                 await message.channel.send(embed=embed)
             else:

@@ -1,1 +1,1 @@
-edt_reload = 30
+edt_reload = 3600 * 4

@@ -1,6 +1,6 @@
 import discord
 from classe import Commande,Vote
-from datetime import date
+from datetime import date,datetime
 from edt import Time_Schedule
 from constant import *
 from threading import Thread
@@ -32,7 +32,7 @@ vote = None
 async def on_ready():
     print('Connexion')
     await bot.change_presence(activity=discord.Game(name="Hacking in progress ..."))
-    await bot.user.edit(username="HackerBot")
+    await bot.user.edit(username="HackerBot 2.0")
     edt1.start()
     edt2.start()
     edt4.start()
@@ -252,7 +252,7 @@ async def on_message(message):
             for i in json_format:
                 embed = discord.Embed( title=i['title'], colour = 0x000000 if count%2 == 0 else 0xFFFFFF )
                 embed.add_field(name=i['url'],value=i['description'])
-                embed.add_field(name=i['format'],value="online : "+str(i['onsite']))
+                embed.add_field(name=i['format'],value="online : "+str(not i['onsite']))
                 embed.add_field(name="participants : "+str(i['participants']),value="Durations : "+str(i['duration']['days'])+"d:"+str(i['duration']['hours'])+"h")
                 embed.add_field(name="start : "+i['start'],value="finish : "+i['finish'])
                 count += 1
@@ -260,13 +260,13 @@ async def on_message(message):
         elif cmd.cmd == "vote":
             if vote == None:
                 msg = await message.channel.send("<@"+str(message.author.id)+"> Start a vote !")
-                time = 1
+                utime = 1
                 if cmd.size() != 0:
                     if not cmd.args[0].isdigit():
                         await message.channel.send("Err | Not a Number")
                         return
-                    time = int(cmd.args[0])
-                vote = Vote(msg.id,msg,time)
+                    utime = int(cmd.args[0])
+                vote = Vote(msg.id,msg,utime)
             else:
                 await message.channel.send("Err | vote already instantiated")
                 return
@@ -305,6 +305,42 @@ async def on_message(message):
         elif cmd.cmd == "vote_c":
             vote = None
             await message.channel.send("Vote cleared !")
+            return
+        elif cmd.cmd == "htb_m":
+            url = "https://hackthebox.eu/api/machines/get/all?api_token="+ID['htb_api']
+            print(url)
+            head = requests.utils.default_headers()
+            head.update({"User-Agent":"bot_htb"})
+            r = requests.get(url,headers=head)
+            #print(r.text)
+            r = json.loads(r.text)[::-1]
+            i = 0
+            while i < len(r):
+                if r[i]['retired'] == False:
+                    embed = discord.Embed(  title=r[i]['name']+"\n"+"-"*(len(r[i]['name'])+len(r[i]['name'])//2),
+                                            colour = randomColor(),
+                                        )
+                    url = r[i]['avatar_thumb']
+                    embed.set_thumbnail(url=r[i]['avatar_thumb'])
+                    embed.add_field(name="OS : "+r[i]['os'],value="IP : "+r[i]['ip'])
+                    embed.add_field(name="Rating : "+str(r[i]['rating']),value="Points : "+str(r[i]['points']))
+                    embed.add_field(name="User : "+str(r[i]['user_owns']),value="Root : "+str(r[i]['root_owns']))
+                    await message.channel.send(embed=embed)
+                i += 1
+            return
+        elif cmd.cmd == "hn":
+            r = requests.get('https://thehackernews.com/')
+            text = r.text.split('body-post clear')[1:]
+            for i in text:
+                url = i.split('story-link')[1].split('href="')[1].split('"')[0]
+                thumb = i.split('img-ratio')[1].split('src=\'')[1].split('\'')[0]
+                title = i.split('home-title\'>')[1].split('<')[0]
+                date = i.split('item-label')[1].split('</i>')[1].split('<')[0]
+                desc = i.split('home-desc\'>')[1].split('<')[0]
+                embed = discord.Embed(title=title,colour=randomColor(),url=url)
+                embed.set_thumbnail(url=thumb)
+                embed.add_field(name=desc,value=date)
+                await message.channel.send(embed=embed)
         elif cmd.cmd == "help":
             if cmd.size()== 0:
                 embed = discord.Embed(
@@ -326,6 +362,8 @@ async def on_message(message):
                 embed.add_field(name="vote_q",value="!vote_q question => Add question to the vote instance")
                 embed.add_field(name="vote_r",value="!vote_r response => Add response to the vote instance")
                 embed.add_field(name="vote_s",value="!vote_s => start the vote now")
+                embed.add_field(name="htb_m",value="!htb_m => print all active machine")
+                embed.add_field(name="hn",value="!hn => print first cover of the hacker news site")
                 embed.add_field(name="help",value="print this shit")
                 await message.channel.send(embed=embed)
             else:
@@ -367,6 +405,9 @@ async def on_raw_reaction_add(payload):
         if member is not None:
             await member.remove_roles(role)
 
+def randomColor():
+    return int(hex(random.randrange(0,255))[2:]+hex(random.randrange(0,255))[2:]+hex(random.randrange(0,255))[2:],16)
+
 def check_permission(perm,msg):
     for i in msg.author.permissions_in(msg.channel):
         if i[0] == perm:
@@ -379,22 +420,26 @@ def getID(name):
             return i.id
     return None
 async def update_schedule():
-    while True:
-        # today = date.today()
-        # today = today.strftime("%d/%m/%Y, %H:%M:%S")
-        # await bot.get_channel(625675545061097472).fetch_message(625696053794177034).edit("updated - "+str(today))
-        # await bot.get_channel(625675545061097472).fetch_message(625696059179401246).edit(embed=await edit1.Parsing())
-        # await bot.get_channel(625675545061097472).fetch_message(631869467902738432).edit(embed=await edit3.Parsing())
-        # await bot.get_channel(625675545061097472).fetch_message(631869982178934784).edit(embed=await edit4.Parsing())
-        # if edt1.bchange == True:
-        #     await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
-        #     edt1.bchange = False
-        # if edt2.bchange == True:
-        #     await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
-        #     edt2.bchange = False
-        # if edt4.bchange == True:
-        #     await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
-        #     edt4.bchange = False
+    # while True:
+    #     today = datetime.today()
+    #     today = today.strftime("%d/%m/%Y %H:%M:%S")
+    #     update = await bot.get_channel(625675545061097472).fetch_message(625696053794177034)
+    #     await update.edit(content="updated - "+str(today))
+    #     edt_change = await bot.get_channel(625675545061097472).fetch_message(625696059179401246)
+    #     await edt_change.edit(embed= edt1.Parsing())
+    #     edt_change = await bot.get_channel(625675545061097472).fetch_message(631869467902738432)
+    #     await edt_change.edit(embed= edt2.Parsing())
+    #     edt_change = await bot.get_channel(625675545061097472).fetch_message(631869982178934784)
+    #     await edt_change.edit(embed= edt4.Parsing())
+    #     if edt1.bchange == True:
+    #         await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
+    #         edt1.bchange = False
+    #     if edt2.bchange == True:
+    #         await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
+    #         edt2.bchange = False
+    #     if edt4.bchange == True:
+    #         await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
+    #         edt4.bchange = False
 
         await asyncio.sleep(edt_reload)
 

@@ -1,2 +1,1 @@
-VOTE QUESTION:RESPONSE
 ban/unban commande

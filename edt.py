@@ -25,6 +25,8 @@ class Time_Schedule(Thread):
         self.daemon = True
         self.change = ""
         self.bchange = False
+        self.first = False
+        self.dataToParsing = ""
     def run(self):
         while True:
             self.connection()
@@ -63,10 +65,12 @@ class Time_Schedule(Thread):
                       }
             r = self.session.post("https://vtmob.uphf.fr/esup-vtclient-up4/stylesheets/desktop/welcome.xhtml",data=payload,allow_redirects=True)
             self.dataToParsing = r.text
+            self.first = True
 
-
-    async def Parsing(self):
+    def Parsing(self):
         # print(self.dataToParsing)
+
+        time.sleep(5)
         jours = self.dataToParsing.split('<tr class="even_row"><td class="blank_column" colspan="58">')
         i = 1
         embed = discord.Embed(
@@ -99,6 +103,7 @@ class Time_Schedule(Thread):
 
 
             i+=1
+        print("done end - "+self.classe)
         return embed
 
 def correction(elem,i,debug,jour):

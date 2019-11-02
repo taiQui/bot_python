@@ -156,7 +156,7 @@ async def on_message(message):
             #         return
             #     numberweek = cmd.args[1]
             edt.connection()
-            await message.channel.send(embed=await edt.Parsing())
+            await message.channel.send(embed=edt.Parsing())
         elif cmd.cmd == "timer":
             if cmd.size() == 0:
                 await message.channel.send("Err | !time HH:MM:SS")

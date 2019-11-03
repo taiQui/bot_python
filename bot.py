@@ -18,7 +18,8 @@ bot = discord.Client()
 """
 Global variable
 """
-ID = json.load(open('.token','r'))
+ID = json.load(open('.token','r')) # get json file with ID
+#create Thread to read schedule
 edt1 = Time_Schedule(ID['M1-FI']['username'],ID['M1-FI']['password'],1)
 edt2 = Time_Schedule(ID['M2-FI']['username'],ID['M2-FI']['password'],2)
 # edt3 = Time_Schedule(USERNAME,PASSWORD,3)
@@ -28,6 +29,7 @@ P4 = None
 PD = None
 vote = None
 #####################
+#When bot is ready
 @bot.event
 async def on_ready():
     print('Connexion')
@@ -40,7 +42,7 @@ async def on_ready():
     await asyncio.run(await update_schedule())
 
 
-
+#When a message is posted on discord
 @bot.event
 async def on_message(message):
     global P4,PD,vote
@@ -376,6 +378,26 @@ async def on_message(message):
             await message.channel.send('Command not found !')
     else:
         return
+
+
+# Say if something get ot get removed "exclus" role
+@bot.event
+async def on_member_update(before,after):
+    was_excluded = False
+    excluded = False
+    for role in before.roles:
+        if role.id == 629294305952923670:
+            was_excluded = True
+
+    for role in after.roles:
+        if role.id == 629294305952923670:
+            excluded = True
+    if was_excluded and not excluded:
+        await bot.get_channel(493180046073397249).send("<@"+str(after.id)+"> You are now Free to speak !")
+    if not was_excluded and excluded:
+        await bot.get_channel(493180046073397249).send("<@"+str(after.id)+"> You are now excluded, You are not able to speak anymore !")
+
+
 # Adding and removing role Master 1 & 2 in adding/removing reaction on message in #Role
 # Not using on_reaction_add and on_reaction_remove because only works on cached message
 @bot.event
@@ -419,6 +441,8 @@ def getID(name):
         if i.name == name:
             return i.id
     return None
+
+#Deamon to actualize Schedule
 async def update_schedule():
     # while True:
     #     today = datetime.today()
@@ -443,8 +467,5 @@ async def update_schedule():
 
         await asyncio.sleep(edt_reload)
 
-
-# @client.event
-# async def on_member_join(member):
 if __name__ == "__main__":
     bot.run(ID['token'])

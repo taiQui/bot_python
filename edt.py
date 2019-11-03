@@ -103,7 +103,6 @@ class Time_Schedule(Thread):
 
 
             i+=1
-        print("done end - "+self.classe)
         return embed
 
 def correction(elem,i,debug,jour):

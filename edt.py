@@ -1,4 +1,4 @@
-import requests,re,discord,asyncio,time
+import requests,re,discord,asyncio,time,datetime
 from threading import Thread,RLock
 from constant import *
 lock = RLock()
@@ -27,6 +27,8 @@ class Time_Schedule(Thread):
         self.bchange = False
         self.first = False
         self.dataToParsing = ""
+        self.today = datetime.datetime.today().weekday()
+
     def run(self):
         while True:
             self.connection()
@@ -49,13 +51,17 @@ class Time_Schedule(Thread):
                  }
         r = self.session.post(url,data=payload,allow_redirects=True)
         if self.next == 0:
-            self.change = "a"
+            self.change = ""
             self.dataToParsing = r.text
             Rchange = re.findall(r'<span style=\'color:black; font-size:7pt; float: right;\'>Dernière mise à jour : ([0-9/ :]*)</span>',r.text)
-            if self.change != "" and len(Rchange)>0:
-                if self.change != Rchange[0]:
-                    self.bchange = True
-                    self.change = Rchange[0]
+            new_today = datetime.datetime.today().weekday()
+            if self.today == 6 and new_today == 0:
+                self.today = datetime.datetime.today().weekday()
+            else :
+                if self.change != "" and len(Rchange)>0:
+                    if self.change != Rchange[0]:
+                        self.bchange = True
+                        self.change = Rchange[0]
         else :
             payload = {
                         'org.apache.myfaces.trinidad.faces.FORM':'form_week',
@@ -66,6 +72,7 @@ class Time_Schedule(Thread):
             r = self.session.post("https://vtmob.uphf.fr/esup-vtclient-up4/stylesheets/desktop/welcome.xhtml",data=payload,allow_redirects=True)
             self.dataToParsing = r.text
             self.first = True
+        self.today = datetime.datetime.today().weekday()
 
     def Parsing(self):
         # print(self.dataToParsing)

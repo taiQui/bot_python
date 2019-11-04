@@ -309,15 +309,22 @@ async def on_message(message):
             await message.channel.send("Vote cleared !")
             return
         elif cmd.cmd == "htb_m":
+            nbbox = 0
+            if cmd.size() > 0:
+                if not cmd.args[0].isdigit():
+                    await message.channel.send("Err | Not a Number ")
+                    return
+                nbbox = int(cmd.args[0])
             url = "https://hackthebox.eu/api/machines/get/all?api_token="+ID['htb_api']
-            print(url)
             head = requests.utils.default_headers()
             head.update({"User-Agent":"bot_htb"})
             r = requests.get(url,headers=head)
             #print(r.text)
             r = json.loads(r.text)[::-1]
             i = 0
-            while i < len(r):
+            if nbbox == 0 :
+                nbbox = len(r)
+            while i < nbbox:
                 if r[i]['retired'] == False:
                     embed = discord.Embed(  title=r[i]['name']+"\n"+"-"*(len(r[i]['name'])+len(r[i]['name'])//2),
                                             colour = randomColor(),
@@ -364,7 +371,7 @@ async def on_message(message):
                 embed.add_field(name="vote_q",value="!vote_q question => Add question to the vote instance")
                 embed.add_field(name="vote_r",value="!vote_r response => Add response to the vote instance")
                 embed.add_field(name="vote_s",value="!vote_s => start the vote now")
-                embed.add_field(name="htb_m",value="!htb_m => print all active machine")
+                embed.add_field(name="htb_m",value="!htb_m [nb] => print all/nb active machine")
                 embed.add_field(name="hn",value="!hn => print first cover of the hacker news site")
                 embed.add_field(name="help",value="print this shit")
                 await message.channel.send(embed=embed)
@@ -468,4 +475,4 @@ async def update_schedule():
         await asyncio.sleep(edt_reload)
 
 if __name__ == "__main__":
-    bot.run(ID['token'])
+    bot.run(ID['token2'])

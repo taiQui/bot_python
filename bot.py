@@ -407,7 +407,7 @@ async def on_message(message):
             img_out.paste(img_back_add,(220,320))
             img_out.save('merge.jpg')
             file = discord.File('merge.jpg',filename='merge.jpg')
-            await message.channel.send("Revien <@"+str(getID(cmd.args[0]))+">, Tu as bien combattus !",file=file)
+            await message.channel.send("Revient <@"+str(getID(cmd.args[0]))+">, Tu as bien combattu !",file=file)
             return
         elif cmd.cmd == "help":
             if cmd.size()== 0:

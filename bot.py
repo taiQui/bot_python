@@ -409,6 +409,35 @@ async def on_message(message):
             file = discord.File('merge.jpg',filename='merge.jpg')
             await message.channel.send("Revient <@"+str(getID(cmd.args[0]))+">, Tu as bien combattu !",file=file)
             return
+        elif cmd.cmd == "ko":
+            if cmd.size() == 0:
+                await message.channel.send("Err | !rappel [name]")
+                return
+            name = ""
+            for i in cmd.args:
+                name += i+" "
+            name = name[:-1]
+            cmd.args[0] = name
+            url_av = ""
+            for i in bot.users:
+                if i.name == cmd.args[0]:
+                    url_av = i.avatar_url
+            if url_av == "":
+                await message.channel.send("Err | No one found with this name")
+                return
+            img_out = Image.open('ko.jpg')
+            w,h = img_out.size
+            img_add = Image.open(requests.get(url_av,stream=True).raw).resize((50,50))
+            w2,h2 = img_add.size
+            img_back_add = Image.new('RGB',(w2 + 120,h2),(255,255,255,255))
+            img_back_add.paste(img_add,(0,0))
+            draw = ImageDraw.Draw(img_back_add)
+            draw.text((w2+10,h2//2),cmd.args[0],(0,0,0))
+            img_out.paste(img_back_add,(450,150))
+            img_out.save('merge.jpg')
+            file = discord.File('merge.jpg',filename='merge.jpg')
+            await message.channel.send("<@"+str(getID(cmd.args[0]))+"> est KO !",file=file)
+            return
         elif cmd.cmd == "help":
             if cmd.size()== 0:
                 embed = discord.Embed(

@@ -3,7 +3,7 @@ from classe import Commande,Vote
 from datetime import date,datetime
 from edt import Time_Schedule
 from constant import *
-from threading import Thread
+from threading import Thread,RLock
 import puissance4,pendu
 import random,asyncio,requests,re,json,time
 from PIL import Image,ImageFont,ImageDraw
@@ -29,6 +29,9 @@ edt4 = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],4)
 P4 = None
 PD = None
 vote = None
+insulttab = []
+verrou = RLock()
+last = 0
 #####################
 #When bot is ready
 @bot.event
@@ -46,7 +49,7 @@ async def on_ready():
 #When a message is posted on discord
 @bot.event
 async def on_message(message):
-    global P4,PD,vote
+    global P4,PD,vote,insulttab,verrou
     if message.content == "exit":
         exit()
     # If message come from bot
@@ -91,8 +94,9 @@ async def on_message(message):
                 await message.channel.send("No user found with : "+cmd.args[0])
                 return
             regex = re.compile("<li>Score&nbsp;:&nbsp;<span>([0-9]+)</span></li>")
-            result = regex.match(r.text)
-            await message.channel.send(cmd.args[0]+" - "+str(result.group(1)))
+            result = regex.findall(r.text)
+            # print(result)
+            await message.channel.send(cmd.args[0]+" - "+str(result[0]))
             return
         elif cmd.cmd == "rmstat":
             if cmd.size() == 0:
@@ -130,13 +134,13 @@ async def on_message(message):
                 await message.channel.send("Err | Not a Number")
                 return
             if cmd.args[0] == "1":
-                await message.channel.send(embed=await edt1.Parsing())
+                await message.channel.send(embed=edt1.Parsing())
             elif cmd.args[0] == "2":
-                await message.channel.send(embed=await edt2.Parsing())
+                await message.channel.send(embed=edt2.Parsing())
             elif cmd.args[0] == "3":
                 pass
             elif cmd.args[0] == "4":
-                await message.channel.send(embed=await edt4.Parsing())
+                await message.channel.send(embed=edt4.Parsing())
         elif cmd.cmd == "edtnext":
             if cmd.size() == 0:
                 await message.channel.send("Err | !edtnext [class] [[Number week after] default 1]")
@@ -153,6 +157,8 @@ async def on_message(message):
                 edt = Time_Schedule(ID['M1-FA']['username'],ID['M1-FA']['password'],int(cmd.args[0]),next=numberweek)
             elif cmd.args[0] == "4":
                 edt = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],int(cmd.args[0]),next=numberweek)
+            else:
+                return
             # if cmd.size() >= 2:
             #     if not cmd.args[1].isdigit():
             #         await message.channel.send("Err | Not a Number")
@@ -213,6 +219,30 @@ async def on_message(message):
             if PD.Pendu_inGame == False:
                 PD = None
         elif cmd.cmd == "insult":
+            # i = 0
+            # test_ban = False
+            # with verrou:
+            #     while i < len(insulttab):
+            #         if insulttab[i][0] == message.author.id:
+            #             if time.time()-insulttab[i][1] < 10:
+            #                 guild = bot.get_guild(491530086319783938)
+            #                 role = discord.utils.get(guild.roles,name="EXCLUS")
+            #                 if role is not None:
+            #                     member = discord.utils.find(lambda m: m.id == message.author.id,guild.members)
+            #                     if member is not None:
+            #                         test_ban = True
+            #                         await member.add_roles(role)
+            #                         await message.channel.send("You are banned from chat for 1minutes")
+            #                         await asyncio.sleep(60)
+            #                         await member.remove_roles(role)
+            #                         await message.channel.send("You are now able to speak")
+            #                     else:
+            #                         print("not found")
+            #             insulttab = insulttab[0:i]+insulttab[i+1:]
+            #         else:
+            #             i+=1
+            # if test_ban:
+            #     return
             if cmd.size() == 0:
                 embed = discord.Embed(
                                         title="Sweet Word",
@@ -235,7 +265,8 @@ async def on_message(message):
                 embed.add_field(name="From : Someone who think about you",value=r.text)
                 user = await bot.fetch_user(id)
                 await user.send(embed=embed)
-                return
+            # with verrou:
+            #     insulttab.append([message.author.id,time.time()])
         elif cmd.cmd == "ctftime":
             number = 5
             if cmd.size() > 0 :
@@ -252,12 +283,69 @@ async def on_message(message):
             r = requests.get(url,headers=header)
             json_format = json.loads(r.text)
             count = 0
+
+
             for i in json_format:
-                embed = discord.Embed( title=i['title'], colour = 0x000000 if count%2 == 0 else 0xFFFFFF )
-                embed.add_field(name=i['url'],value=i['description'])
-                embed.add_field(name=i['format'],value="online : "+str(not i['onsite']))
-                embed.add_field(name="participants : "+str(i['participants']),value="Durations : "+str(i['duration']['days'])+"d:"+str(i['duration']['hours'])+"h")
-                embed.add_field(name="start : "+i['start'],value="finish : "+i['finish'])
+                try:
+                    title = i['title']
+                    title = correction(title)
+                except:
+                    title = "None"
+                try:
+                    url = i['url']
+                    url = correction(url)
+                except:
+                    url = "None"
+                try:
+                    format = i['format']
+                    format = correction(format)
+                except:
+                    format = "None"
+                try:
+                    desc = i['description']
+                    desc = correction(desc)
+                except:
+                    desc = "None"
+                try:
+                    online = i['online']
+                    online = correction(online)
+                except:
+                    online = "None"
+                try:
+                    onsite = i['onsite']
+                    onsite = correction(onsite)
+                except:
+                    onsite = "None"
+                try:
+                    participants = i['participants']
+                    participants = correction(participants)
+                except:
+                    participants = -1
+                try:
+                    day = i['duration']['days']
+                    day = correction(day)
+                except:
+                    day = -1
+                try:
+                    hour =  i['duration']['hours']
+                    hour = correction(hour)
+                except:
+                    hour = -1
+                try:
+                    start = i['start']
+                    start = correction(start)
+                except:
+                    start = "None"
+                try:
+                    finish = i['finish']
+                    finish = correction(finish)
+                except:
+                    finish = "None"
+                embed = discord.Embed( title=title, colour = 0x000000 if count%2 == 0 else 0xFFFFFF )
+                embed.add_field(name=url,value=desc)
+                embed.add_field(name=format,value="online : "+str(not onsite)) if type(onsite) == type(True) else "None"
+                embed.add_field(name="participants : "+str(participants),value="Durations : "+str(day)+"d:"+str(hour)+"h")
+                embed.add_field(name="start : "+start,value="finish : "+finish)
                 count += 1
                 await message.channel.send(embed=embed)
         elif cmd.cmd == "vote":
@@ -509,7 +597,7 @@ async def on_raw_reaction_add(payload):
         if member is not None:
             await member.add_roles(role)
 @bot.event
-async def on_raw_reaction_add(payload):
+async def on_raw_reaction_remove(payload):
     message_id = payload.message_id
     role = None
     if message_id == "619622989323042816":
@@ -536,6 +624,11 @@ def getID(name):
         if i.name == name:
             return i.id
     return None
+
+def correction(arg):
+    if arg == "":
+        return "None"
+    return arg
 
 #Deamon to actualize Schedule
 async def update_schedule():

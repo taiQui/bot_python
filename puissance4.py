@@ -1,7 +1,7 @@
 import numpy as np
 import discord
 from threading import RLock
-import copy,random
+import random
 verrou = RLock()
 class Puissance4:
     def __init__(self):

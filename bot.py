@@ -50,8 +50,6 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     global P4,PD,vote,insulttab,verrou
-    if message.content == "exit":
-        exit()
     # If message come from bot
     if message.author == bot.user:
         return
@@ -632,26 +630,26 @@ def correction(arg):
 
 #Deamon to actualize Schedule
 async def update_schedule():
-    # while True:
-    #     today = datetime.today()
-    #     today = today.strftime("%d/%m/%Y %H:%M:%S")
-    #     update = await bot.get_channel(625675545061097472).fetch_message(625696053794177034)
-    #     await update.edit(content="updated - "+str(today))
-    #     edt_change = await bot.get_channel(625675545061097472).fetch_message(625696059179401246)
-    #     await edt_change.edit(embed= edt1.Parsing())
-    #     edt_change = await bot.get_channel(625675545061097472).fetch_message(631869467902738432)
-    #     await edt_change.edit(embed= edt2.Parsing())
-    #     edt_change = await bot.get_channel(625675545061097472).fetch_message(631869982178934784)
-    #     await edt_change.edit(embed= edt4.Parsing())
-    #     if edt1.bchange == True:
-    #         await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
-    #         edt1.bchange = False
-    #     if edt2.bchange == True:
-    #         await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
-    #         edt2.bchange = False
-    #     if edt4.bchange == True:
-    #         await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
-    #         edt4.bchange = False
+    while True:
+        today = datetime.today()
+        today = today.strftime("%d/%m/%Y %H:%M:%S")
+        update = await bot.get_channel(625675545061097472).fetch_message(625696053794177034)
+        await update.edit(content="updated - "+str(today))
+        edt_change = await bot.get_channel(625675545061097472).fetch_message(625696059179401246)
+        await edt_change.edit(embed= edt1.Parsing())
+        edt_change = await bot.get_channel(625675545061097472).fetch_message(631869467902738432)
+        await edt_change.edit(embed= edt2.Parsing())
+        edt_change = await bot.get_channel(625675545061097472).fetch_message(631869982178934784)
+        await edt_change.edit(embed= edt4.Parsing())
+        if edt1.bchange == True:
+            await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
+            edt1.bchange = False
+        if edt2.bchange == True:
+            await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
+            edt2.bchange = False
+        if edt4.bchange == True:
+            await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
+            edt4.bchange = False
 
         await asyncio.sleep(edt_reload)
 

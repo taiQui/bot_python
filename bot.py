@@ -5,7 +5,7 @@ from edt import Time_Schedule
 from constant import *
 from threading import Thread,RLock
 import puissance4,pendu
-import random,asyncio,requests,re,json,time,base64
+import random,asyncio,requests,re,json,time
 from PIL import Image,ImageFont,ImageDraw
 from io import BytesIO
 
@@ -541,7 +541,6 @@ async def on_message(message):
                 for i in range(1,len(articles_list)):
                     title = articles_list[i-1].split('title="')[-1].split('"')[0]
                     url = articles_list[i-1].split('href="')[-1].split('"')[0]
-                    b642img(articles_list[i].split('base64,')[1].split('"')[0])
                     description = articles_list[i].split('class="entry__excerpt">')[1].split('</p>')[0]
                     embed = discord.Embed(title=title,url=url,colour=randomColor())
                     embed.add_field(name="-"*len(title),value=description)
@@ -635,10 +634,6 @@ async def on_raw_reaction_remove(payload):
         member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
         if member is not None:
             await member.remove_roles(role)
-
-def b642img(b64):
-    im = Image.open(BytesIO(base64.b64decode(b64)))
-    im.save('jdg.gif')
 
 def randomColor():
     return int(hex(random.randrange(0,255))[2:]+hex(random.randrange(0,255))[2:]+hex(random.randrange(0,255))[2:],16)

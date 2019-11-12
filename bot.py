@@ -547,6 +547,9 @@ async def on_message(message):
                 embed.add_field(name="vote_s",value="!vote_s => start the vote now")
                 embed.add_field(name="htb_m",value="!htb_m [nb] => print all/nb active machine")
                 embed.add_field(name="hn",value="!hn => print first cover of the hacker news site")
+                embed.add_field(name="attaque",value="!attaque [name] => begin fight with pokemon [name]")
+                embed.add_field(name="rappel",value="!rappel name => end fight with pokemon [name]")
+                embed.add_field(name="ko",value="!ko => pokemon [name] is ko")
                 embed.add_field(name="help",value="print this shit")
                 await message.channel.send(embed=embed)
             else:

@@ -91,7 +91,7 @@ class Time_Schedule(Thread):
             cour = re.findall(r'content_bulle"><u>([a-zA-Z0-9- ()]+)',jours[i])
             location = re.findall(r"rouge'>([A-Z0-9() -]+)",jours[i])
             prof = re.findall(r"vert'>([A-Za-z ]+)",jours[i])
-            embed.add_field(name=day[0],value="----------------------------------------------------------------------------------")
+            embed.add_field(name=day[0],value="---------------")
             if (len(hour)==0):
                 embed.add_field(name='? no class ',value="None")
             else:

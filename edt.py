@@ -105,7 +105,7 @@ class Time_Schedule(Thread):
                     auxprof,debug = correction(prof,j,debug,jours[i])
                     if len(hour)>= 1:
                         #print(hour[j])
-                        embed.add_field(name=auxcour + " "+auxtype,value=auxhour+" "+auxlocation+" with "+auxprof)
+                        embed.add_field(name=auxcour + " "+auxtype,value=auxhour+" "+auxlocation+" with "+auxprof,inline=False)
                         # print('# '+cour[j]+'|'+type[j]+' : '+hour[j][1]+" : "+hour[j][1] +' with :'+prof[j])
 
 

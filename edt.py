@@ -61,7 +61,8 @@ class Time_Schedule(Thread):
                     if self.change != Rchange[0]:
                         self.bchange = True
                         self.change = Rchange[0]
-                    else:
+                else:
+                    if len(Rchange) > 0:
                         self.change = Rchange[0]
         else :
             payload = {

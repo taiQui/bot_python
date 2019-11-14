@@ -75,7 +75,7 @@ class Time_Schedule(Thread):
         self.today = datetime.datetime.today().weekday()
 
     def Parsing(self):
-        # print(self.dataToParsing)
+        print(self.dataToParsing)
 
         time.sleep(5)
         jours = self.dataToParsing.split('<tr class="even_row"><td class="blank_column" colspan="58">')
@@ -87,7 +87,7 @@ class Time_Schedule(Thread):
         while i < len(jours)-2:
             day = re.findall(r'blank_column"><b>([a-zA-Z0-9. -]+)',jours[i])
             hour = re.findall(r'(TD|TP|CM|AUTRE|RES)"><tbody><tr><td><b>([0-9:-]+)',jours[i])
-            type = re.findall(r'info_bulle"><br\/><br\/><b>([A-Z0-9 ]+)\.',jours[i])
+            type = re.findall(r'info_bulle"><br\/><br\/><b>([A-Z0-9 ]+)',jours[i])
             cour = re.findall(r'content_bulle"><u>([a-zA-Z0-9- ()]+)',jours[i])
             location = re.findall(r"rouge'>([A-Z0-9() -]+)",jours[i])
             prof = re.findall(r"vert'>([A-Za-z ]+)",jours[i])
@@ -119,8 +119,12 @@ def correction(elem,i,debug,jour):
             pass
         aux = elem[i]
     except:
-        aux = re.findall(r'style="color:red;"><br\/>([a-zA-Z0-9- ]*)<\/span>',jour)
+        aux = re.findall(r'style="color:red;"><br\/>([a-zA-Z0-9-+ ]*)<\/span>',jour)
+        print(aux)
         try :
+            print(aux)
+            print(debug)
+            print(aux[debug])
             aux = aux[debug]
             debug+=1
         except:

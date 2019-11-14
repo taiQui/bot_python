@@ -61,6 +61,8 @@ class Time_Schedule(Thread):
                     if self.change != Rchange[0]:
                         self.bchange = True
                         self.change = Rchange[0]
+                    else:
+                        self.change = Rchange[0]
         else :
             payload = {
                         'org.apache.myfaces.trinidad.faces.FORM':'form_week',

@@ -51,7 +51,6 @@ class Time_Schedule(Thread):
                  }
         r = self.session.post(url,data=payload,allow_redirects=True)
         if self.next == 0:
-            self.change = ""
             self.dataToParsing = r.text
             Rchange = re.findall(r'<span style=\'color:black; font-size:7pt; float: right;\'>Dernière mise à jour : ([0-9/ :]*)</span>',r.text)
             new_today = datetime.datetime.today().weekday()

@@ -91,38 +91,33 @@ async def on_message(message):
             if "L'adresse URL que vous demandez n'existe pas. Le plan du site peut vous aider à trouver l'information recherchée." in r.text:
                 await message.channel.send("No user found with : "+cmd.args[0])
                 return
-            regex = re.compile("<li>Score&nbsp;:&nbsp;<span>([0-9]+)</span></li>")
-            result = regex.findall(r.text)
-            # print(result)
-            await message.channel.send(cmd.args[0]+" - "+str(result[0]))
+            result = r.text.split('Points</span>')[0].split('</h3>')[-2].split(';')[-1]
+            await message.channel.send(cmd.args[0]+" - "+str(result))
             return
         elif cmd.cmd == "rmstat":
             if cmd.size() == 0:
                 await message.channel.send("Err | !rmstat [RootMe Name]")
                 return
-            r = requests.get("https://www.root-me.org/"+cmd.args[0]+"?inc=score&lang=fr")
+            r = requests.get("https://www.root-me.org/"+cmd.args[0]+"?inc=info&lang=fr")
             if "L'adresse URL que vous demandez n'existe pas. Le plan du site peut vous aider à trouver l'information recherchée." in r.text:
                 await message.channel.send("No user found with : "+cmd.args[0])
                 return
-            regex = re.compile("<div class=\"gris\">([0-9%]+)</div>")
-            result = regex.findall(r.text)
-            regex2 = re.compile("<a href=\".*\" title=\".*\">([a-zA-Z-éè ]+)</a>")
-            result2 = regex2.findall(r.text)
-            pt = r.text.split("<li>\n<b class=\"tl\">Challenges :</b>\n<span class=\"color1 tl\">\n")[1].split("&")[0]
-            sc = r.text.split("<li>\n<b class=\"tl\">Challenges :</b>\n<span class=\"color1 tl\">\n")[1].split("\"gris tm\">\n")[1].split("\n")[0]
-            regex3 = re.compile('Place :</b>\n<span class="color1 tl">\n([0-9]+)<span class="gris">/([0-9]+)</span>')
-            ranked = regex3.findall(r.text)
-            rang = r.text.split("<b class=\"tl\">Rang :</b>")[1].split("&nbsp")[0].split(">")[1]
+            reg = re.compile('href="fr/Challenges/([A-Za-z0-9é àè-]*)/">([0-9% ]*)')
+            result = reg.findall(r.text.split('small-12 columns')[-3])
+            pt = r.text.split('Points</span>')[0].split('</h3>')[-2].split(';')[-1]
+            sc = r.text.split('class="gras">Challenges</span>')[0].split('</h3>')[-2].split(';')[-1]
+
+            ranked = r.text.split('class="gras">Place</span>')[0].split('</h3>')[-2].split(';')[-1]
             embed = discord.Embed(
                                     title="RootMe stat : "+cmd.args[0],
                                     url = "https://www.root-me.org/"+cmd.args[0]+"?inc=score&lang=fr"
                                 )
             embed.add_field(name="Points",value=pt)
             embed.add_field(name="Challenge solved",value=sc)
-            embed.add_field(name="rank",value=rang)
-            embed.add_field(name="ranked",value=ranked[0][0]+"/"+ranked[0][1])
-            for i in range(len(result)):
-                embed.add_field(name=result2[i],value=result[i],inline=True)
+            embed.add_field(name="ranked",value=ranked)
+            embed.add_field(name="---",value="___",inline=False)
+            for i in result:
+                embed.add_field(name=i[0],value=i[1],inline=True)
             await message.channel.send(embed=embed)
         elif cmd.cmd == "edt":
             if cmd.size() == 0:

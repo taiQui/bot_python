@@ -4,7 +4,7 @@ from constant import *
 lock = RLock()
 
 class Time_Schedule(Thread):
-    def __init__(self,username,password,classe,next = 0):
+    def __init__(self,username,password,classe,next = "0"):
         Thread.__init__(self)
         self.username = username
         self.password = password
@@ -50,7 +50,7 @@ class Time_Schedule(Thread):
                 "_eventId": 'submit',
                  }
         r = self.session.post(url,data=payload,allow_redirects=True)
-        if self.next == 0:
+        if self.next == "0":
             self.dataToParsing = r.text
             Rchange = re.findall(r'<span style=\'color:black; font-size:7pt; float: right;\'>Dernière mise à jour : ([0-9/ :]*)</span>',r.text)
             new_today = datetime.datetime.today().weekday()
@@ -65,15 +65,16 @@ class Time_Schedule(Thread):
                     if len(Rchange) > 0:
                         self.change = Rchange[0]
         else :
-            payload = {
-                        'org.apache.myfaces.trinidad.faces.FORM':'form_week',
-                        '_noJavaScript':'false',
-                        'javax.faces.ViewState':'!1',
-                        'form_week:_idcl':'form_week:btn_next'
-                      }
-            r = self.session.post("https://vtmob.uphf.fr/esup-vtclient-up4/stylesheets/desktop/welcome.xhtml",data=payload,allow_redirects=True)
-            self.dataToParsing = r.text
-            self.first = True
+            for i in range(1,int(self.next)+1):
+                payload = {
+                            'org.apache.myfaces.trinidad.faces.FORM':'form_week',
+                            '_noJavaScript':'false',
+                            'javax.faces.ViewState':'!'+str(i),
+                            'form_week:_idcl':'form_week:btn_next'
+                          }
+                r = self.session.post("https://vtmob.uphf.fr/esup-vtclient-up4/stylesheets/desktop/welcome.xhtml",data=payload,allow_redirects=True)
+                self.dataToParsing = r.text
+                self.first = True
         self.today = datetime.datetime.today().weekday()
 
     def Parsing(self):

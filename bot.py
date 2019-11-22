@@ -144,9 +144,14 @@ async def on_message(message):
                 await message.channel.send("Err | !edtnext [class] [[Number week after] default 1]")
                 return
             if not cmd.args[0].isdigit():
-                await message.channel.send("Err | Not a number")
+                await message.channel.send("Err | Not a Number")
                 return
             numberweek = 1
+            if cmd.size() == 2:
+                if not cmd.args[1].isdigit():
+                    await message.channel.send("Err | Not a Number")
+                    return
+                numberweek = cmd.args[1]
             if cmd.args[0] == "1":
                 edt = Time_Schedule(ID['M1-FI']['username'],ID['M1-FI']['password'],int(cmd.args[0]),next=numberweek)
             elif cmd.args[0] == "2":

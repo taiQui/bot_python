@@ -534,20 +534,24 @@ async def on_message(message):
                     return
                 default_page = str(cmd.args[0])
             r = requests.get("https://www.journaldugeek.com/articles/page/"+default_page)
-            try:
-                content = r.text.split('section id="js-single-content"')[1]
-                articles_list = content.split('class="archive__list__item"')
-                print(len(articles_list))
-                for i in range(1,len(articles_list)):
+
+            content = r.text.split('section id="js-single-content"')[1]
+            articles_list = content.split('class="archive__list__item"')
+            print(len(articles_list))
+            for i in range(1,len(articles_list)):
+                try:
                     title = articles_list[i-1].split('title="')[-1].split('"')[0]
                     url = articles_list[i-1].split('href="')[-1].split('"')[0]
-                    description = articles_list[i].split('class="entry__excerpt">')[1].split('</p>')[0]
+                    try :
+                        description = articles_list[i].split('class="entry__excerpt">')[1].split('</p>')[0]
+                    except:
+                        description = "Not able to get description"
                     embed = discord.Embed(title=title,url=url,colour=randomColor())
                     embed.add_field(name="-"*len(title),value=description)
                     await message.channel.send(embed=embed)
-            except:
-                await message.channel.send("Err | Unable to get articles")
-                return
+                except:
+                    await message.channel.send("Err | Unable to get articles")
+            return
         elif cmd.cmd == "help":
             if cmd.size()== 0:
                 embed = discord.Embed(
@@ -681,4 +685,4 @@ async def update_schedule():
         await asyncio.sleep(edt_reload)
 
 if __name__ == "__main__":
-    bot.run(ID['token2'])
+    bot.run(ID['token'])

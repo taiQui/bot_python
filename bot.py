@@ -685,4 +685,4 @@ async def update_schedule():
         await asyncio.sleep(edt_reload)
 
 if __name__ == "__main__":
-    bot.run(ID['token'])
+    bot.run(ID['token2'])

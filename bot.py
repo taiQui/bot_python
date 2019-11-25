@@ -1,5 +1,5 @@
 import discord
-from classe import Commande,Vote
+from classe import Commande,Vote,Log
 from datetime import date,datetime
 from edt import Time_Schedule
 from constant import *
@@ -36,6 +36,7 @@ last = 0
 #When bot is ready
 @bot.event
 async def on_ready():
+    await Log("online - ",True,bot)
     print('Connexion')
     await bot.change_presence(activity=discord.Game(name="Hacking in progress ..."))
     await bot.user.edit(username="HackerBot 2.0")
@@ -120,50 +121,56 @@ async def on_message(message):
                 embed.add_field(name=i[0],value=i[1],inline=True)
             await message.channel.send(embed=embed)
         elif cmd.cmd == "edt":
-            if cmd.size() == 0:
-                await message.channel.send("Err | !edt [class] ")
-                return
-            if not cmd.args[0].isdigit():
-                await message.channel.send("Err | Not a Number")
-                return
-            if cmd.args[0] == "1":
-                await message.channel.send(embed=edt1.Parsing())
-            elif cmd.args[0] == "2":
-                await message.channel.send(embed=edt2.Parsing())
-            elif cmd.args[0] == "3":
-                pass
-            elif cmd.args[0] == "4":
-                await message.channel.send(embed=edt4.Parsing())
-        elif cmd.cmd == "edtnext":
-            if cmd.size() == 0:
-                await message.channel.send("Err | !edtnext [class] [[Number week after] default 1]")
-                return
-            if not cmd.args[0].isdigit():
-                await message.channel.send("Err | Not a Number")
-                return
-            numberweek = 1
-            if cmd.size() == 2:
-                if not cmd.args[1].isdigit():
+            try:
+                if cmd.size() == 0:
+                    await message.channel.send("Err | !edt [class] ")
+                    return
+                if not cmd.args[0].isdigit():
                     await message.channel.send("Err | Not a Number")
                     return
-                numberweek = cmd.args[1]
-            if cmd.args[0] == "1":
-                edt = Time_Schedule(ID['M1-FI']['username'],ID['M1-FI']['password'],int(cmd.args[0]),next=numberweek)
-            elif cmd.args[0] == "2":
-                edt = Time_Schedule(ID['M2-FI']['username'],ID['M2-FI']['password'],int(cmd.args[0]),next=numberweek)
-            elif cmd.args[0] == "3":
-                edt = Time_Schedule(ID['M1-FA']['username'],ID['M1-FA']['password'],int(cmd.args[0]),next=numberweek)
-            elif cmd.args[0] == "4":
-                edt = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],int(cmd.args[0]),next=numberweek)
-            else:
-                return
-            # if cmd.size() >= 2:
-            #     if not cmd.args[1].isdigit():
-            #         await message.channel.send("Err | Not a Number")
-            #         return
-            #     numberweek = cmd.args[1]
-            edt.connection()
-            await message.channel.send(embed=edt.Parsing())
+                if cmd.args[0] == "1":
+                    await message.channel.send(embed=edt1.Parsing())
+                elif cmd.args[0] == "2":
+                    await message.channel.send(embed=edt2.Parsing())
+                elif cmd.args[0] == "3":
+                    pass
+                elif cmd.args[0] == "4":
+                    await message.channel.send(embed=edt4.Parsing())
+            except Exception as e:
+                await Log(e)
+        elif cmd.cmd == "edtnext":
+            try:
+                if cmd.size() == 0:
+                    await message.channel.send("Err | !edtnext [class] [[Number week after] default 1]")
+                    return
+                if not cmd.args[0].isdigit():
+                    await message.channel.send("Err | Not a Number")
+                    return
+                numberweek = 1
+                if cmd.size() == 2:
+                    if not cmd.args[1].isdigit():
+                        await message.channel.send("Err | Not a Number")
+                        return
+                    numberweek = cmd.args[1]
+                if cmd.args[0] == "1":
+                    edt = Time_Schedule(ID['M1-FI']['username'],ID['M1-FI']['password'],int(cmd.args[0]),next=numberweek)
+                elif cmd.args[0] == "2":
+                    edt = Time_Schedule(ID['M2-FI']['username'],ID['M2-FI']['password'],int(cmd.args[0]),next=numberweek)
+                elif cmd.args[0] == "3":
+                    edt = Time_Schedule(ID['M1-FA']['username'],ID['M1-FA']['password'],int(cmd.args[0]),next=numberweek)
+                elif cmd.args[0] == "4":
+                    edt = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],int(cmd.args[0]),next=numberweek)
+                else:
+                    return
+                # if cmd.size() >= 2:
+                #     if not cmd.args[1].isdigit():
+                #         await message.channel.send("Err | Not a Number")
+                #         return
+                #     numberweek = cmd.args[1]
+                edt.connection()
+                await message.channel.send(embed=edt.Parsing())
+            except Exception as e:
+                await Log(e,None,None)
         elif cmd.cmd == "timer":
             if cmd.size() == 0:
                 await message.channel.send("Err | !time HH:MM:SS")
@@ -662,26 +669,28 @@ def correction(arg):
 #Deamon to actualize Schedule
 async def update_schedule():
     while True:
-        today = datetime.today()
-        today = today.strftime("%d/%m/%Y %H:%M:%S")
-        update = await bot.get_channel(625675545061097472).fetch_message(625696053794177034)
-        await update.edit(content="updated - "+str(today))
-        edt_change = await bot.get_channel(625675545061097472).fetch_message(625696059179401246)
-        await edt_change.edit(embed= edt1.Parsing())
-        edt_change = await bot.get_channel(625675545061097472).fetch_message(631869467902738432)
-        await edt_change.edit(embed= edt2.Parsing())
-        edt_change = await bot.get_channel(625675545061097472).fetch_message(631869982178934784)
-        await edt_change.edit(embed= edt4.Parsing())
-        if edt1.bchange == True:
-            await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
-            edt1.bchange = False
-        if edt2.bchange == True:
-            await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
-            edt2.bchange = False
-        if edt4.bchange == True:
-            await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
-            edt4.bchange = False
-
+        try:
+            today = datetime.today()
+            today = today.strftime("%d/%m/%Y %H:%M:%S")
+            update = await bot.get_channel(625675545061097472).fetch_message(625696053794177034)
+            await update.edit(content="updated - "+str(today))
+            edt_change = await bot.get_channel(625675545061097472).fetch_message(625696059179401246)
+            await edt_change.edit(embed= edt1.Parsing())
+            edt_change = await bot.get_channel(625675545061097472).fetch_message(631869467902738432)
+            await edt_change.edit(embed= edt2.Parsing())
+            edt_change = await bot.get_channel(625675545061097472).fetch_message(631869982178934784)
+            await edt_change.edit(embed= edt4.Parsing())
+            if edt1.bchange == True:
+                await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
+                edt1.bchange = False
+            if edt2.bchange == True:
+                await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
+                edt2.bchange = False
+            if edt4.bchange == True:
+                await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
+                edt4.bchange = False
+        except Exception as e:
+            await Log(e,1,bot)
         await asyncio.sleep(edt_reload)
 
 if __name__ == "__main__":

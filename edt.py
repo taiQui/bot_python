@@ -78,7 +78,7 @@ class Time_Schedule(Thread):
         self.today = datetime.datetime.today().weekday()
 
     def Parsing(self):
-        print(self.dataToParsing)
+        #print(self.dataToParsing)
 
         time.sleep(5)
         jours = self.dataToParsing.split('<tr class="even_row"><td class="blank_column" colspan="58">')
@@ -123,11 +123,11 @@ def correction(elem,i,debug,jour):
         aux = elem[i]
     except:
         aux = re.findall(r'style="color:red;"><br\/>([a-zA-Z0-9-+ ]*)<\/span>',jour)
-        print(aux)
+        #print(aux)
         try :
-            print(aux)
-            print(debug)
-            print(aux[debug])
+            #print(aux)
+            #print(debug)
+            #print(aux[debug])
             aux = aux[debug]
             debug+=1
         except:

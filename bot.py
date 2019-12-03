@@ -57,6 +57,7 @@ async def on_message(message):
     #If message is commands
     if message.content.startswith('!'):
         cmd = Commande(message.content)
+        await Log("command : "+cmd.cmd+" with args : "+str(cmd.args)+" by "+message.author.name,True,bot)
         # All commande
         if cmd.cmd == "dice":
             await message.channel.send("Throwing dice : "+str(random.randrange(0,10)))

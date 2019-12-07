@@ -9,7 +9,7 @@ async def Log(msg,type,bot):
     if type != None :
         await bot.get_channel(582307485239476224).send(today+" | "+str(msg))
     with open('log.txt','a') as log_file:
-        log_file.write(today+"\n"+msg+"\n&&&&&\n")
+        log_file.write(today+"\n"+str(msg)+"\n&&&&&\n")
 class Commande:
     def __init__(self,command):
         # Full command

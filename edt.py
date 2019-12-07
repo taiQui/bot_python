@@ -88,29 +88,57 @@ class Time_Schedule(Thread):
                                 colour = self.color
                              )
         while i < len(jours)-2:
+            # day = re.findall(r'blank_column"><b>([a-zA-Z0-9. -]+)',jours[i])
+            # hour = re.findall(r'(TD|TP|CM|AUTRE|RES)"><tbody><tr><td><b>([0-9:-]+)',jours[i])
+            # type = re.findall(r'info_bulle"><br\/><br\/><b>([A-Z0-9 ]+)',jours[i])
+            # cour = re.findall(r'content_bulle"><u>([a-zA-Z0-9- ()]+)',jours[i])
+            # location = re.findall(r"rouge'>([A-Z0-9() -]+)",jours[i])
+            # prof = re.findall(r"vert'>([A-Za-z ]+)",jours[i])
+            # embed.add_field(name=day[0],value="--------------",inline=False)
+            # if (len(hour)==0):
+            #     embed.add_field(name='? no class ',value="None")
+            # else:
+            #     debug = 0
+            #     for j in range(len(hour)):
+            #         hour[j] = hour[j][1]
+            #         auxcour,debug = correction(cour,j,debug,jours[i])
+            #         auxtype,debug = correction(type,j,debug,jours[i])
+            #         auxhour,debug = correction(hour,j,debug,jours[i])
+            #         auxlocation,debug = correction(location,j,debug,jours[i])
+            #         auxprof,debug = correction(prof,j,debug,jours[i])
+            #         if len(hour)>= 1:
+            #             #print(hour[j])
+            #             embed.add_field(name=auxcour + " "+auxtype,value=auxhour+" "+auxlocation+" with "+auxprof,inline=False)
+            #             # print('# '+cour[j]+'|'+type[j]+' : '+hour[j][1]+" : "+hour[j][1] +' with :'+prof[j])
             day = re.findall(r'blank_column"><b>([a-zA-Z0-9. -]+)',jours[i])
-            hour = re.findall(r'(TD|TP|CM|AUTRE|RES)"><tbody><tr><td><b>([0-9:-]+)',jours[i])
-            type = re.findall(r'info_bulle"><br\/><br\/><b>([A-Z0-9 ]+)',jours[i])
-            cour = re.findall(r'content_bulle"><u>([a-zA-Z0-9- ()]+)',jours[i])
-            location = re.findall(r"rouge'>([A-Z0-9() -]+)",jours[i])
-            prof = re.findall(r"vert'>([A-Za-z ]+)",jours[i])
+            classe = re.findall(r'<table class=".{1,5}">.*',jours[i])
             embed.add_field(name=day[0],value="--------------",inline=False)
-            if (len(hour)==0):
-                embed.add_field(name='? no class ',value="None")
-            else:
-                debug = 0
-                for j in range(len(hour)):
-                    hour[j] = hour[j][1]
-                    auxcour,debug = correction(cour,j,debug,jours[i])
-                    auxtype,debug = correction(type,j,debug,jours[i])
-                    auxhour,debug = correction(hour,j,debug,jours[i])
-                    auxlocation,debug = correction(location,j,debug,jours[i])
-                    auxprof,debug = correction(prof,j,debug,jours[i])
-                    if len(hour)>= 1:
-                        #print(hour[j])
-                        embed.add_field(name=auxcour + " "+auxtype,value=auxhour+" "+auxlocation+" with "+auxprof,inline=False)
-                        # print('# '+cour[j]+'|'+type[j]+' : '+hour[j][1]+" : "+hour[j][1] +' with :'+prof[j])
-
+            for j in classe:
+                hour = re.findall(r'(TD|TP|CM|AUTRE|RES)"><tbody><tr><td><b>([0-9:-]+)',j)
+                if len(hour) == 0:
+                    hour.append("Undefined")
+                type = re.findall(r'info_bulle"><br\/><br\/><b>([A-Z0-9 ]+)',j)
+                if len(type) == 0:
+                    type.append("Undefined")
+                cour = re.findall(r'content_bulle"><u>([a-zA-Z0-9- ()]+)',j)
+                if len(cour) == 0:
+                    cour.append("Undefined")
+                location = re.findall(r"rouge'>([A-Z0-9() -]+)",j)
+                if len(location) == 0:
+                    location.append("Undefined")
+                prof = re.findall(r"vert'>([A-Za-z -]+)<",j)
+                if len(prof) == 0:
+                    prof.append("Undefined")
+                mp = re.findall(r'style="color:red;"><br\/>([a-zA-Z0-9-+ ]*)<\/span>',j)
+                # print(hour)
+                # print(type)
+                # print(cour)
+                # print(location)
+                # print(prof)
+                if len(mp) == 0:
+                    embed.add_field(name=cour[0] + " "+type[0],value=hour[0][1]+" "+location[0]+" with "+prof[0],inline=False)
+                else:
+                    embed.add_field(name=cour[0] + " "+type[0],value=hour[0][1]+" "+location[0]+" with "+prof[0]+"\nSpecial : "+mp[0],inline=False)
 
             i+=1
         return embed

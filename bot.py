@@ -682,13 +682,13 @@ async def update_schedule():
             edt_change = await bot.get_channel(625675545061097472).fetch_message(631869982178934784)
             await edt_change.edit(embed= edt4.Parsing())
             if edt1.bchange == True:
-                await bot.get_channel(388286013828759553).send("<@619596015615344669> FI There is a changements in your Schedule look <#625675545061097472>")
+                await bot.get_channel(619594025917480960).send("M1 - FI There is a changements in your Schedule look <#625675545061097472>")
                 edt1.bchange = False
             if edt2.bchange == True:
-                await bot.get_channel(493180046073397249).send("<@514021108484276224> FI There is a changements in your Schedule look <#625675545061097472> ")
+                await bot.get_channel(534805365968076801).send("M2 - FI There is a changements in your Schedule look <#625675545061097472> ")
                 edt2.bchange = False
             if edt4.bchange == True:
-                await bot.get_channel(493180046073397249).send("<@619596015615344669> FA There is a changement in your Schedule look <#625675545061097472> ")
+                await bot.get_channel(534805365968076801).send("M2 - FA There is a changement in your Schedule look <#625675545061097472> ")
                 edt4.bchange = False
         except Exception as e:
             await Log(e,1,bot)

@@ -24,6 +24,15 @@ class Time_Schedule(Thread):
         self.next = next
         self.daemon = True
         self.change = ""
+
+        try:
+            with open('.changement'+self.classe.replace(' ','')+'.txt') as f:
+                try:
+                    self.change = f.read()
+                except:
+                    self.change = ""
+        except:
+            self.change = ""
         self.bchange = False
         self.first = False
         self.dataToParsing = ""
@@ -61,9 +70,13 @@ class Time_Schedule(Thread):
                     if self.change != Rchange[0]:
                         self.bchange = True
                         self.change = Rchange[0]
+                        with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
+                            f.write(Rchange[0])
                 else:
                     if len(Rchange) > 0:
                         self.change = Rchange[0]
+                        with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
+                            f.write(Rchange[0])
         else :
             for i in range(1,int(self.next)+1):
                 payload = {

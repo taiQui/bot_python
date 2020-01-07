@@ -100,7 +100,7 @@ class Time_Schedule(Thread):
                                 title="Schedule : "+self.classe,
                                 colour = self.color
                              )
-        while i < len(jours)-2:
+        while i < len(jours)-1:
             # day = re.findall(r'blank_column"><b>([a-zA-Z0-9. -]+)',jours[i])
             # hour = re.findall(r'(TD|TP|CM|AUTRE|RES)"><tbody><tr><td><b>([0-9:-]+)',jours[i])
             # type = re.findall(r'info_bulle"><br\/><br\/><b>([A-Z0-9 ]+)',jours[i])

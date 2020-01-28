@@ -64,6 +64,8 @@ class Time_Schedule(Thread):
             new_today = datetime.datetime.today().weekday()
             if self.today == 6 and new_today == 0:
                 self.today = datetime.datetime.today().weekday()
+                self.change= ""
+                self.bchange = False
             else :
                 try:
                     if self.change != "" and len(Rchange)>0:
@@ -73,12 +75,20 @@ class Time_Schedule(Thread):
                             with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
                                 f.write(Rchange[0])
                     else:
-                        if len(Rchange) > 0:
-                            self.change = Rchange[0]
-                            with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
-                                f.write(Rchange[0])
+                        try:
+                            if len(Rchange) > 0:
+                                self.change = Rchange[0]
+                                with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
+                                    f.write(Rchange[0])
+                            else:
+                                self.bchange = False
+                                self.change = ""
+                        except:
+                            self.change = ""
+                            self.bchange = False
                 except:
                     self.change = ""
+                    self.bchange = False
         else :
             for i in range(1,int(self.next)+1):
                 payload = {

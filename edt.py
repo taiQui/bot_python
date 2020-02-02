@@ -70,7 +70,7 @@ class Time_Schedule(Thread):
                 self.bchange = False
             else :
                 try:
-                    if self.change != [] and len(Rchange)>0:
+                    if self.change != [] and len(Rchange)>0 and Rchange != ['']:
                         if self.change != [Rchange[0]]:
                             self.bchange = True
                             self.change = [Rchange[0]]
@@ -78,7 +78,7 @@ class Time_Schedule(Thread):
                                 f.write(Rchange[0])
                     else:
                         try:
-                            if len(Rchange) > 0:
+                            if len(Rchange) > 0 and Rchance != ['']:
                                 self.change = [Rchange[0]]
                                 with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
                                     f.write(Rchange[0])

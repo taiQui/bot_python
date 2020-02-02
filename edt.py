@@ -23,15 +23,15 @@ class Time_Schedule(Thread):
             self.color = 0x01F2FF
         self.next = next
         self.daemon = True
-        self.change = ""
+        self.change = []
         try:
             with open('.changement'+self.classe.replace(' ','')+'.txt') as f:
                 try:
-                    self.change = f.read()
+                    self.change = [f.read()]
                 except:
-                    self.change = ""
+                    self.change = []
         except:
-            self.change = ""
+            self.change = []
         self.bchange = False
         self.first = False
         self.dataToParsing = ""
@@ -62,32 +62,34 @@ class Time_Schedule(Thread):
             self.dataToParsing = r.text
             Rchange = re.findall(r'<span style=\'color:black; font-size:7pt; float: right;\'>Dernière mise à jour : ([0-9/ :]*)</span>',r.text)
             new_today = datetime.datetime.today().weekday()
+            # print("test ")
+            # print(Rchange)
             if self.today == 6 and new_today == 0:
                 self.today = datetime.datetime.today().weekday()
-                self.change= ""
+                self.change= []
                 self.bchange = False
             else :
                 try:
-                    if self.change != "" and len(Rchange)>0:
-                        if self.change != Rchange[0]:
+                    if self.change != [] and len(Rchange)>0:
+                        if self.change != [Rchange[0]]:
                             self.bchange = True
-                            self.change = Rchange[0]
+                            self.change = [Rchange[0]]
                             with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
                                 f.write(Rchange[0])
                     else:
                         try:
                             if len(Rchange) > 0:
-                                self.change = Rchange[0]
+                                self.change = [Rchange[0]]
                                 with open('.changement'+self.classe.replace(' ','')+'.txt','w') as f:
                                     f.write(Rchange[0])
                             else:
                                 self.bchange = False
-                                self.change = ""
+                                self.change = []
                         except:
-                            self.change = ""
+                            self.change = []
                             self.bchange = False
                 except:
-                    self.change = ""
+                    self.change = []
                     self.bchange = False
         else :
             for i in range(1,int(self.next)+1):
@@ -101,7 +103,7 @@ class Time_Schedule(Thread):
                 self.dataToParsing = r.text
                 self.first = True
         self.today = datetime.datetime.today().weekday()
-
+        print("test 2 : "+str(self.change))
     def Parsing(self):
         #print(self.dataToParsing)
 

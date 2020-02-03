@@ -36,6 +36,7 @@ last = 0
 #When bot is ready
 @bot.event
 async def on_ready():
+
     await Log("online - ",True,bot)
     print('Connexion')
     await bot.change_presence(activity=discord.Game(name="Hacking in progress ..."))
@@ -624,6 +625,7 @@ async def on_member_update(before,after):
 async def on_raw_reaction_add(payload):
     message_id = payload.message_id
     role = None
+    guild = bot.get_guild(491530086319783938)
     if message_id == 619622989323042816:
         role = discord.utils.get(guild.roles,name="Master 1ère année")
 
@@ -637,6 +639,7 @@ async def on_raw_reaction_add(payload):
 async def on_raw_reaction_remove(payload):
     message_id = payload.message_id
     role = None
+    guild = bot.get_guild(491530086319783938)
     if message_id == 619622989323042816:
         role = discord.utils.get(guild.roles,name="Master 1ère année")
 

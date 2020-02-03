@@ -414,7 +414,7 @@ async def on_message(message):
             head = requests.utils.default_headers()
             head.update({"User-Agent":"bot_htb"})
             r = requests.get(url,headers=head)
-            #print(r.text)
+            print(r.text)
             r = json.loads(r.text)[::-1]
             i = 0
             if nbbox == 0 :
@@ -624,10 +624,10 @@ async def on_member_update(before,after):
 async def on_raw_reaction_add(payload):
     message_id = payload.message_id
     role = None
-    if message_id == "619622989323042816":
+    if message_id == 619622989323042816:
         role = discord.utils.get(guild.roles,name="Master 1ère année")
 
-    if message_id == "619623025557372951":
+    if message_id == 619623025557372951:
         role = discord.utils.get(guild.roles,name="Master 2ème année")
     if role is not None:
         member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
@@ -637,10 +637,10 @@ async def on_raw_reaction_add(payload):
 async def on_raw_reaction_remove(payload):
     message_id = payload.message_id
     role = None
-    if message_id == "619622989323042816":
+    if message_id == 619622989323042816:
         role = discord.utils.get(guild.roles,name="Master 1ère année")
 
-    if message_id == "619623025557372951":
+    if message_id == 619623025557372951:
         role = discord.utils.get(guild.roles,name="Master 2ème année")
     if role is not None:
         member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)

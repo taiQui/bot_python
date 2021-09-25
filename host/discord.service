@@ -1,0 +1,15 @@
+
+[Unit]
+Description=Discord Bot CDSI
+After=network-online.target
+
+[Service]
+ExecStart=/bin/bash /home/pi/bot_python/host/bot_python.sh
+WorkingDirectory=/home/pi/bot_python
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

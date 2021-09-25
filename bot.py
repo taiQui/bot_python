@@ -587,7 +587,7 @@ async def on_message(message):
                 if url_av == "":
                     await message.channel.send("Err | No one found with this name")
                     return
-                img_out = Image.open('out.jpg')
+                img_out = Image.open('img/out.jpg')
                 w,h = img_out.size
                 img_add = Image.open(requests.get(url_av,stream=True).raw).resize((50,50))
                 w2,h2 = img_add.size
@@ -596,8 +596,8 @@ async def on_message(message):
                 draw = ImageDraw.Draw(img_back_add)
                 draw.text((w2+10,h2//2),cmd.args[0],(0,0,0))
                 img_out.paste(img_back_add,(190,150))
-                img_out.save('merge.jpg')
-                file = discord.File('merge.jpg',filename='merge.jpg')
+                img_out.save('img/merge.jpg')
+                file = discord.File('img/merge.jpg',filename='img/merge.jpg')
                 await message.channel.send("JE T'APELLE <@"+str(getID(cmd.args[0]))+">",file=file)
                 return
             except Exception as e:
@@ -620,7 +620,7 @@ async def on_message(message):
                 if url_av == "":
                     await message.channel.send("Err | No one found with this name")
                     return
-                img_out = Image.open('back.jpg')
+                img_out = Image.open('img/back.jpg')
                 w,h = img_out.size
                 img_add = Image.open(requests.get(url_av,stream=True).raw).resize((50,50))
                 w2,h2 = img_add.size
@@ -629,8 +629,8 @@ async def on_message(message):
                 draw = ImageDraw.Draw(img_back_add)
                 draw.text((w2+10,h2//2),cmd.args[0],(0,0,0))
                 img_out.paste(img_back_add,(220,320))
-                img_out.save('merge.jpg')
-                file = discord.File('merge.jpg',filename='merge.jpg')
+                img_out.save('img/merge.jpg')
+                file = discord.File('img/merge.jpg',filename='img/merge.jpg')
                 await message.channel.send("Revient <@"+str(getID(cmd.args[0]))+">, Tu as bien combattu !",file=file)
                 return
             except Exception as e:
@@ -653,7 +653,7 @@ async def on_message(message):
                 if url_av == "":
                     await message.channel.send("Err | No one found with this name")
                     return
-                img_out = Image.open('ko.jpg')
+                img_out = Image.open('img/ko.jpg')
                 w,h = img_out.size
                 img_add = Image.open(requests.get(url_av,stream=True).raw).resize((50,50))
                 w2,h2 = img_add.size
@@ -662,8 +662,8 @@ async def on_message(message):
                 draw = ImageDraw.Draw(img_back_add)
                 draw.text((w2+10,h2//2),cmd.args[0],(0,0,0))
                 img_out.paste(img_back_add,(450,150))
-                img_out.save('merge.jpg')
-                file = discord.File('merge.jpg',filename='merge.jpg')
+                img_out.save('img/merge.jpg')
+                file = discord.File('img/merge.jpg',filename='img/merge.jpg')
                 await message.channel.send("<@"+str(getID(cmd.args[0]))+"> est KO !",file=file)
                 return
             except Exception as e:

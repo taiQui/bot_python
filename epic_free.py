@@ -19,8 +19,9 @@ class Epic_Free(Thread):
         self.gameTook = False
         self.error = ""
     def run(self):
-        print("Running Epic free thread !")
+        print("[EPIC] Running Epic free thread !")
         while True:
+            self.getGames()
             self.waitTime()
             if self.close == "N":
                 if self.found:
@@ -65,6 +66,7 @@ class Epic_Free(Thread):
         else:
             self.close = "N"
     def getGames(self):
+        print('[EPIC] Start fetching game')
         l = []
         try:
             options = Options()
@@ -72,6 +74,7 @@ class Epic_Free(Thread):
             driver = webdriver.Firefox('.',options=options)
             driver.get(self.url)
             start = time.time()
+            print('[EPIC] Gecko started')
             while True:
                 try:
                     a = driver.find_element_by_class_name('css-1u5k6xy')
@@ -92,7 +95,7 @@ class Epic_Free(Thread):
                     l.append((game,img,link))
             driver.close()
             self.game = l
-            print('[+] found free game')
+            print('[EPIC][+] found free game')
         except Exception as e:
             self.game = []
             self.error = e

@@ -42,7 +42,11 @@ Global variable
 
 
 
-bot = discord.Client()
+intents = discord.Intents.default()
+intents.members = True
+intents.presences = True
+
+bot = discord.Client(intents=intents)
 
 ID = json.load(open('.token','r')) # get json file with ID
 #create Thread to read schedule
@@ -583,7 +587,7 @@ async def on_message(message):
                 if url_av == "":
                     await message.channel.send("Err | No one found with this name")
                     return
-                img_out = Image.open('out.jpg')
+                img_out = Image.open('img/out.jpg')
                 w,h = img_out.size
                 img_add = Image.open(requests.get(url_av,stream=True).raw).resize((50,50))
                 w2,h2 = img_add.size
@@ -592,8 +596,8 @@ async def on_message(message):
                 draw = ImageDraw.Draw(img_back_add)
                 draw.text((w2+10,h2//2),cmd.args[0],(0,0,0))
                 img_out.paste(img_back_add,(190,150))
-                img_out.save('merge.jpg')
-                file = discord.File('merge.jpg',filename='merge.jpg')
+                img_out.save('img/merge.jpg')
+                file = discord.File('img/merge.jpg',filename='img/merge.jpg')
                 await message.channel.send("JE T'APELLE <@"+str(getID(cmd.args[0]))+">",file=file)
                 return
             except Exception as e:
@@ -616,7 +620,7 @@ async def on_message(message):
                 if url_av == "":
                     await message.channel.send("Err | No one found with this name")
                     return
-                img_out = Image.open('back.jpg')
+                img_out = Image.open('img/back.jpg')
                 w,h = img_out.size
                 img_add = Image.open(requests.get(url_av,stream=True).raw).resize((50,50))
                 w2,h2 = img_add.size
@@ -625,8 +629,8 @@ async def on_message(message):
                 draw = ImageDraw.Draw(img_back_add)
                 draw.text((w2+10,h2//2),cmd.args[0],(0,0,0))
                 img_out.paste(img_back_add,(220,320))
-                img_out.save('merge.jpg')
-                file = discord.File('merge.jpg',filename='merge.jpg')
+                img_out.save('img/merge.jpg')
+                file = discord.File('img/merge.jpg',filename='img/merge.jpg')
                 await message.channel.send("Revient <@"+str(getID(cmd.args[0]))+">, Tu as bien combattu !",file=file)
                 return
             except Exception as e:
@@ -649,7 +653,7 @@ async def on_message(message):
                 if url_av == "":
                     await message.channel.send("Err | No one found with this name")
                     return
-                img_out = Image.open('ko.jpg')
+                img_out = Image.open('img/ko.jpg')
                 w,h = img_out.size
                 img_add = Image.open(requests.get(url_av,stream=True).raw).resize((50,50))
                 w2,h2 = img_add.size
@@ -658,8 +662,8 @@ async def on_message(message):
                 draw = ImageDraw.Draw(img_back_add)
                 draw.text((w2+10,h2//2),cmd.args[0],(0,0,0))
                 img_out.paste(img_back_add,(450,150))
-                img_out.save('merge.jpg')
-                file = discord.File('merge.jpg',filename='merge.jpg')
+                img_out.save('img/merge.jpg')
+                file = discord.File('img/merge.jpg',filename='img/merge.jpg')
                 await message.channel.send("<@"+str(getID(cmd.args[0]))+"> est KO !",file=file)
                 return
             except Exception as e:
@@ -770,13 +774,15 @@ async def on_raw_reaction_add(payload):
     if message_id == 619623025557372951:
         role = discord.utils.get(guild.roles,name="Master 2ème année")
     if role is not None:
-        member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+        member = guild.get_member(payload.user_id)
+        member = payload.member
         if member is not None:
             await member.add_roles(role)
 @bot.event
 async def on_raw_reaction_remove(payload):
     message_id = payload.message_id
     role = None
+    print(payload)  
     guild = bot.get_guild(491530086319783938)
     if message_id == 619622989323042816:
         role = discord.utils.get(guild.roles,name="Master 1ère année")
@@ -784,7 +790,8 @@ async def on_raw_reaction_remove(payload):
     if message_id == 619623025557372951:
         role = discord.utils.get(guild.roles,name="Master 2ème année")
     if role is not None:
-        member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+        guild = bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
         if member is not None:
             await member.remove_roles(role)
 
@@ -866,4 +873,4 @@ async def update_schedule():
         await asyncio.sleep(edt_reload)
 
 if __name__ == "__main__":
-    bot.run(ID['token2'])
+    bot.run(ID['token'])

@@ -3,4 +3,6 @@ __pycache__
 *.pyc
 log.txt
 log*
+*.log
 .changement*.*
+merge.jpg

@@ -42,7 +42,11 @@ Global variable
 
 
 
-bot = discord.Client()
+intents = discord.Intents.default()
+intents.members = True
+intents.presences = True
+
+bot = discord.Client(intents=intents)
 
 ID = json.load(open('.token','r')) # get json file with ID
 #create Thread to read schedule
@@ -770,13 +774,15 @@ async def on_raw_reaction_add(payload):
     if message_id == 619623025557372951:
         role = discord.utils.get(guild.roles,name="Master 2ème année")
     if role is not None:
-        member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+        member = guild.get_member(payload.user_id)
+        member = payload.member
         if member is not None:
             await member.add_roles(role)
 @bot.event
 async def on_raw_reaction_remove(payload):
     message_id = payload.message_id
     role = None
+    print(payload)  
     guild = bot.get_guild(491530086319783938)
     if message_id == 619622989323042816:
         role = discord.utils.get(guild.roles,name="Master 1ère année")
@@ -784,7 +790,8 @@ async def on_raw_reaction_remove(payload):
     if message_id == 619623025557372951:
         role = discord.utils.get(guild.roles,name="Master 2ème année")
     if role is not None:
-        member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+        guild = bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
         if member is not None:
             await member.remove_roles(role)
 
@@ -866,4 +873,4 @@ async def update_schedule():
         await asyncio.sleep(edt_reload)
 
 if __name__ == "__main__":
-    bot.run(ID['token2'])
+    bot.run(ID['token'])

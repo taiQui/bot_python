@@ -66,16 +66,12 @@ class Time_Schedule(Thread):
         """
         self.session = requests.Session()
         r = self.session.get(url)
-        lt = re.findall(r'LT-[0-9]+-[a-zA-Z0-9]+-cas\.uphf\.fr',r.text)[0]
         execu = re.findall(r'execution\" value=\"[a-zA-Z0-9]+',r.text)[0].split("=")[1].replace('\"',"")
         evt = "submit"
-        ipadress = re.findall(r'ipAddress" value="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+',r.text)[0].split("=")[1].replace("\"","")
         useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) \\ Gecko/20100101 Firefox/40.1"
         submit = "Connexion";
-        sessionid = re.findall(r'jsessionid=[a-zA-Z0-9]+',r.text)[0].split("=")[1]
         payload = {"username": self.username,
                 "password": self.password,
-                "lt"      : lt,
                 "execution": execu,
                 "_eventId": 'submit',
                  }

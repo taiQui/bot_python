@@ -9,6 +9,8 @@ import random,asyncio,requests,re,json,time
 from PIL import Image,ImageFont,ImageDraw
 from io import BytesIO
 from epic_free import Epic_Free
+# Loading env var
+import os
 """
 Author : taiQui
 Description : Bot discord
@@ -48,12 +50,37 @@ intents.presences = True
 
 bot = discord.Client(intents=intents)
 
-ID = json.load(open('.token','r')) # get json file with ID
+###################
+## Loading var
+###################
+if os.path.exists('.token'):
+    ID = json.load(open('.token','r'))
+else:
+    ID = None
+
+API_DISCORD_TOKEN = os.environ['API_DISCORD_TOKEN'] or ID[token]
+API_HTB_TOKEN = os.environ['API_HTB_TOKEN'] or ID[htb_api]
+
+API_M1_FI_USER = os.environ['API_M1_FI_USER'] or ID['M1-FI']['username']
+API_M1_FI_PASS = os.environ['API_M1_FI_PASS'] or ID['M1-FI']['password']
+
+API_M2_FI_USER = os.environ['API_M2_FI_USER'] or ID['M2-FI']['username']
+API_M2_FI_PASS = os.environ['API_M2_FI_PASS'] or ID['M2-FI']['password']
+
+API_M1_FA_USER = os.environ['API_M1_FA_USER'] or ID['M1-FA']['username']
+API_M1_FA_PASS = os.environ['API_M1_FA_PASS'] or ID['M1-FA']['password']
+
+API_M2_FA_USER = os.environ['API_M2_FA_USER'] or ID['M2-FA']['username']
+API_M2_FA_PASS = os.environ['API_M2_FA_PASS'] or ID['M2-FA']['password']
+
 #create Thread to read schedule
-edt1 = Time_Schedule(ID['M1-FI']['username'],ID['M1-FI']['password'],1)
-edt2 = Time_Schedule(ID['M2-FI']['username'],ID['M2-FI']['password'],2)
+edt1 = Time_Schedule(API_M1_FI_USER,API_M1_FI_PASS,1)
+edt2 = Time_Schedule(API_M2_FI_USER,API_M2_FI_PASS,2)
 # edt3 = Time_Schedule(USERNAME,PASSWORD,3)
-edt4 = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],4)
+edt4 = Time_Schedule(API_M2_FA_USER,API_M2_FA_PASS,4)
+
+
+
 epic_free = Epic_Free()
 
 P4 = None
@@ -226,13 +253,13 @@ async def on_message(message):
                         return
                     numberweek = cmd.args[1]
                 if cmd.args[0] == "1":
-                    edt = Time_Schedule(ID['M1-FI']['username'],ID['M1-FI']['password'],int(cmd.args[0]),next=numberweek)
+                    edt = Time_Schedule(API_M1_FI_USER,API_M1_FI_PASS,int(cmd.args[0]),next=numberweek)
                 elif cmd.args[0] == "2":
-                    edt = Time_Schedule(ID['M2-FI']['username'],ID['M2-FI']['password'],int(cmd.args[0]),next=numberweek)
+                    edt = Time_Schedule(API_M2_FI_USER,API_M2_FI_PASS,int(cmd.args[0]),next=numberweek)
                 elif cmd.args[0] == "3":
-                    edt = Time_Schedule(ID['M1-FA']['username'],ID['M1-FA']['password'],int(cmd.args[0]),next=numberweek)
+                    edt = Time_Schedule(API_M1_FA_USER,API_M1_FA_PASS,int(cmd.args[0]),next=numberweek)
                 elif cmd.args[0] == "4":
-                    edt = Time_Schedule(ID['M2-FA']['username'],ID['M2-FA']['password'],int(cmd.args[0]),next=numberweek)
+                    edt = Time_Schedule(API_M2_FA_USER,API_M2_FA_PASS,int(cmd.args[0]),next=numberweek)
                 else:
                     return
                 # if cmd.size() >= 2:
@@ -528,7 +555,7 @@ async def on_message(message):
                         await message.channel.send("Err | Not a Number ")
                         return
                     nbbox = int(cmd.args[0])
-                url = "https://hackthebox.eu/api/machines/get/all?api_token="+ID['htb_api']
+                url = "https://hackthebox.eu/api/machines/get/all?api_token="+API_HTB_TOKEN
                 head = requests.utils.default_headers()
                 head.update({"User-Agent":"bot_htb"})
                 r = requests.get(url,headers=head)
@@ -873,4 +900,4 @@ async def update_schedule():
         await asyncio.sleep(edt_reload)
 
 if __name__ == "__main__":
-    bot.run(ID['token'])
+    bot.run(API_DISCORD_TOKEN)
